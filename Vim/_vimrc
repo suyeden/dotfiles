@@ -1,0 +1,171 @@
+"=======================================================================================
+"Setting
+"=======================================================================================
+
+"ファイル読み込み時の文字コードの設定
+set enc=utf-8
+
+"Vim script 内でマルチバイト文字を使う場合の設定
+scriptencoding=utf-8
+
+"保存時の文字コード
+set fenc=utf-8
+
+"読み込み時の文字コードの自動判別順序
+set fileencodings=utf-8,cp932,sjis,euc-jp,ucs-boms
+
+"改行コードの自動判別順序
+set fileformats=dos,unix,mac
+
+"ファイルを上書きする前にバックアップを作ることを無効化
+set nowritebackup
+
+"バックアップファイルを作らない
+set nobackup
+
+"スワップファイルを作らない
+set noswapfile
+
+"編集中のファイルが変更されたら自動で読み直す
+set  autoread
+
+"バッファが編集中でもその他のファイルを開けるように
+set hidden
+
+"vim の矩形選択で文字が無くても右へ進める
+set virtualedit=block
+
+"挿入モードでバックスペースで削除できるようにする（バックスペースキーの有効化）
+set backspace=indent,eol,start
+
+"全角文字用専用の設定
+set ambiwidth=double
+
+"wildmenu オプションを有効にする（コマンドモードの補完）
+set wildmenu
+
+"カラースキームの設定
+colorscheme atom-dark-256
+
+"半角文字の設定
+set guifont=Ricty_Diminished:h12
+
+"=======================================================================================
+"表示設定
+"=======================================================================================
+
+"エラーメッセージの表示時にビープを鳴らさない
+set noerrorbells
+
+"Windows でパスの区切り文字をスラッシュで扱う
+set shellslash
+
+"括弧入力時に対応する括弧を表示
+set showmatch matchtime=1
+
+"インデント方法の変更
+set cinoptions+=:0
+
+"メッセージ表示欄を2行確保
+set cmdheight=2
+
+"ステータス行を常に表示
+set laststatus=2
+
+"入力中のコマンドをステータスに表示にする
+set showcmd
+
+"省略されずに表示
+set display=lastline
+
+"タブ文字をCTRL-Iで表示し、行末に$で表示する
+set list
+
+"コマンドラインの履歴を10,000件保持する
+set history=10000
+
+"入力モードでTabキー押下時に半角スペースを挿入
+set expandtab
+
+"インデント幅（smartindent で増減する幅）
+set shiftwidth=3
+
+"タブキー挿下時に挿入される文字幅を設定
+set softtabstop=3
+
+"ファイル内にあるタブ文字の表示幅
+set tabstop=3
+
+"ツールバーを非表示にする
+set guioptions-=T
+
+"yでコピーした時にクリップボードに入る
+set guioptions+=a
+
+"メニューバーを非表示にする
+set guioptions-=m
+
+"対応する括弧を強調表示
+set showmatch
+
+"改行時に前の行のインデントを継続する
+set autoindent
+
+"インデントはスマートインデント
+set smartindent
+
+"検索にマッチした行以外を折りたたむ機能
+set nofoldenable
+
+"タイトルを表示
+set title
+
+"行番号の表示
+set number
+
+"Escの2回押しでハイライト消去
+nnoremap <Esc><Esc> :nohlsearch<CR><ESC>
+
+"シンタックスハイライト
+syntax on
+
+"全ての数を10進数として扱う
+set nrformats=
+
+"行をまたいで移動（カーソルの左右移動で行末から次の行頭への移動が可能）
+set whichwrap=b,s,h,l,<,>,[,],~
+
+"バッファスクロール
+set mouse=a
+
+"ペースト設定
+if &term =~ "xterm"
+   let &t_SI .= "\e[?2004h"
+   let &t_EI .= "\e[?2004I"
+   let &pastetoggle = "\e[201~"
+
+   function XTermPasteBegin(ret)
+            set paste
+            return a:ret
+   endfunction
+   inoremap <special> <expr> <Es>[200~ XTermPasteBegin("")
+endif
+
+"=======================================================================================
+"検索系
+"=======================================================================================
+
+"検索するときに大文字小文字を区別しない
+set ignorecase
+
+"検索文字列に大文字が含まれている場合は区別して検索する
+set smartcase
+
+"検索がファイル末尾まで進んだら、ファイル先頭から再び検索
+set wrapscan
+
+"1文字入力毎に検索を行う
+set incsearch
+
+"検索結果をハイライト表示
+set hlsearch
