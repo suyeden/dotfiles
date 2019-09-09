@@ -84,9 +84,6 @@ set list
 "コマンドラインの履歴を10,000件保持する
 set history=10000
 
-"入力モードでTabキー押下時に半角スペースを挿入
-set expandtab
-
 "インデント幅（smartindent で増減する幅）
 set shiftwidth=3
 
