@@ -50,6 +50,16 @@ colorscheme atom-dark-256
 "半角文字の設定
 set guifont=Ricty_Diminished:h12
 
+"ビルドをF5に割り当てる
+noremap <F5> :make
+noremap! <F5> :make
+
+":copenを<F6>、:ccloseを<F7>に割り当てる
+noremap <F6> :copen
+noremap! <F6> :copen
+noremap <F7> :cclose
+noremap! <F7> :cclose
+
 "=======================================================================================
 "表示設定
 "=======================================================================================
