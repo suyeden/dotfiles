@@ -3,13 +3,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (dirtree auto-complete undo-tree))))
+ '(package-selected-packages
+   (quote
+    (flatland-black-theme ir-black-theme dirtree auto-complete undo-tree))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Ricty Diminished" :foundry "outline" :slant normal :weight normal :height 100 :width normal)))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "outline" :family "Ricty Diminished"))))
+ '(font-lock-comment-face ((t (:foreground "gray45")))))
 
 ;;環境を日本語,UTF-8にする
 (set-locale-environment nil)
@@ -21,13 +24,16 @@
 (set-default-coding-systems 'utf-8)
 (prefer-coding-system 'utf-8)
 
+;;スタートアップメッセージを表示させない
+(setq inhibit-startup-message t)
+
 ;;バックアップファイルを作成させない
 (setq make-backup-files nil)
 
 ;;終了時にオートセーブファイルを削除する
 (setq delete-auto-save-files t)
 
-;;タブにスペースを使用する
+;;タブにスペースを使用しない
 (setq-default tab-width 3 indent-tabs-mode nil)
 
 ;;改行コードを表示する
@@ -41,17 +47,14 @@
 ;;ツールバーを消す
 (tool-bar-mode -1)
 
-;;列数を表示する
-(column-number-mode t)
-
-;;行数を表示する
-(global-linum-mode t)
-
 ;;カーソルの点滅をやめる
 (blink-cursor-mode 0)
 
 ;;対応する括弧を光らせる
 (show-paren-mode 1)
+
+;;列数を表示する
+(column-number-mode t)
 
 ;;スクロールは1行ごとに
 (setq scroll-conservatively 1)
@@ -75,9 +78,6 @@
 
 ;;括弧の自動補完
 (electric-pair-mode 1)
-
-;;カーソル行をハイライトする
-(global-hl-line-mode t)
 
 ;;ウィンドウ間の移動のキーバインド変更
 (global-set-key "\C-t" 'other-window)
@@ -135,3 +135,33 @@
   (kill-line 0))
 ;;C-c d に設定
 (define-key global-map (kbd "C-c d") 'backward-kill-line)
+
+;;SBCL をデフォルトの Common Lisp 処理系に設定
+(setq inferior-lisp-program "sbcl")
+;;~/slime を load-path に追加
+(add-to-list `load-path (expand-file-name "C:/home/slime"))
+;;SLIME のロード
+(require 'slime)
+(slime-setup '(slime-repl slime-fancy slime-banner))
+
+;;カラーテーマの変更
+(load-theme 'ir-black t)
+
+;;Schemeモードの設定
+;;gaucheに渡す文字コードをUTF-8に設定
+(setq process-coding-system-alist
+      (cons '("gosh" utf-8 . utf-8) process-coding-system-alist))
+;;Emacsのバッファ内で動かすScheme処理系をgaucheに設定
+(setq scheme-program-name "gosh -i")
+;;Schemeモードをより便利なcmuscheme.elで使用する設定
+(autoload 'scheme-mode "cmuscheme" "Major mode for Scheme." t)
+(autoload 'run-scheme "cmuscheme" "Run an inferior Scheme process." t)
+;;ウィンドウを2つに分け、一方でgaucheインタプリタを実行する関数（コマンド）を定義し、C-c S で起動できるように設定
+(defun scheme-other-window ()
+  "Run scheme on other window"
+  (interactive)
+  (switch-to-buffer-other-window
+   (get-buffer-create "*scheme*"))
+  (run-scheme scheme-program-name))
+(define-key global-map
+  "\C-cS" 'scheme-other-window)
