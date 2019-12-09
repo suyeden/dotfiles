@@ -5,16 +5,16 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (flatland-black-theme ir-black-theme dirtree auto-complete undo-tree))))
+    (tangotango-theme flatland-black-theme ir-black-theme dirtree auto-complete undo-tree))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "outline" :family "Ricty Diminished"))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 132 :width normal :foundry "outline" :family "Ricty Diminished"))))
  '(font-lock-comment-face ((t (:foreground "gray45")))))
 
-;;環境を日本語,UTF-8にする
+;;; 環境を日本語,UTF-8にする
 (set-locale-environment nil)
 (set-language-environment "Japanese")
 (set-terminal-coding-system 'utf-8)
@@ -24,51 +24,51 @@
 (set-default-coding-systems 'utf-8)
 (prefer-coding-system 'utf-8)
 
-;;スタートアップメッセージを表示させない
+;;; スタートアップメッセージを表示させない
 (setq inhibit-startup-message t)
 
-;;バックアップファイルを作成させない
+;;; バックアップファイルを作成させない
 (setq make-backup-files nil)
 
-;;終了時にオートセーブファイルを削除する
+;;; 終了時にオートセーブファイルを削除する
 (setq delete-auto-save-files t)
 
-;;タブにスペースを使用しない
+;;; タブにスペースを使用しない
 (setq-default tab-width 3 indent-tabs-mode nil)
 
-;;改行コードを表示する
+;;; 改行コードを表示する
 (setq eol-mnemonic-dos "(CRLF)")
 (setq eol-mnemonic-mac "(CR)")
 (setq eol-mnemonic-unix "(LF)")
 
-;;メニューバーを消す
+;;; メニューバーを消す
 (menu-bar-mode -1)
 
-;;ツールバーを消す
+;;; ツールバーを消す
 (tool-bar-mode -1)
 
-;;カーソルの点滅をやめる
+;;; カーソルの点滅をやめる
 (blink-cursor-mode 0)
 
-;;対応する括弧を光らせる
+;;; 対応する括弧を光らせる
 (show-paren-mode 1)
 
-;;列数を表示する
+;;; 列数を表示する
 (column-number-mode t)
 
-;;スクロールは1行ごとに
+;;; スクロールは1行ごとに
 (setq scroll-conservatively 1)
 
-;;C-kで行全体を削除する
+;;; C-kで行全体を削除する
 (setq kill-whole-line t)
 
-;;dired設定
+;;; dired設定
 (require 'dired-x)
 
-;;"yes or no"の選択を"y or n"にする
+;;; "yes or no"の選択を"y or n"にする
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;;beep音を消す
+;;; beep音を消す
 (defun my-bell-function()
   (unless (memq this-command
                 '(isearch-abort abort-recursive-edit exit-minibuffer
@@ -76,87 +76,87 @@
     (ding)))
 (setq ring-bell-function 'my-bell-function)
 
-;;括弧の自動補完
+;;; 括弧の自動補完
 (electric-pair-mode 1)
 
-;;ウィンドウ間の移動のキーバインド変更
+;;; ウィンドウ間の移動のキーバインド変更
 (global-set-key "\C-t" 'other-window)
 
-;;パッケージ読み込み(package.elの有効化)
+;;; パッケージ読み込み(package.elの有効化)
 ;;
 (require 'package)
 ;;
-;;HTTPS系のリポジトリ
-;;(add-to-list 'package-archives '("melpa"."https://melpa.milkbox.net/packages/")t)
-;;(add-to-list 'package-archives '("melpa-stable"."https://stable.melpa.org/packages/")t)
-;;(add-to-list 'package-archives '("marmalade"."https://marmalade-repo.org/packages/")t)
+;; HTTPS系のリポジトリ
+;; (add-to-list 'package-archives '("melpa"."https://melpa.milkbox.net/packages/")t)
+;; (add-to-list 'package-archives '("melpa-stable"."https://stable.melpa.org/packages/")t)
+;; (add-to-list 'package-archives '("marmalade"."https://marmalade-repo.org/packages/")t)
 ;;
-;;HTTP系のリポジトリ
+;; HTTP系のリポジトリ
 (add-to-list 'package-archives '("melpa"."http://melpa.milkbox.net/packages/")t)
 (add-to-list 'package-archives '("melpa-stable"."http://stable.melpa.org/packages/")t)
 (add-to-list 'package-archives '("org"."http://orgmode.org/elpa/")t)
 (add-to-list 'package-archives '("ELPA"."http://tromey.com/elpa/")t)
 ;;
-;;marmaladeはHTTPアクセスすると証明書エラーでフリーズするので注意
-;;(add-to-list 'package-archives '("marmalade"."http://marmalade-repo.org/packages/")t)
+;; marmaladeはHTTPアクセスすると証明書エラーでフリーズするので注意
+;; (add-to-list 'package-archives '("marmalade"."http://marmalade-repo.org/packages/")t)
 ;;
 (package-initialize)
 
-;;auto-complete
+;;; auto-complete
 ;;
-;;auto-complete-configの設定ファイルを読み込む
+;; auto-complete-configの設定ファイルを読み込む
 (require 'auto-complete-config)
 ;;
 (ac-config-default)
-;;TABキーで自動補完を有効にする
+;; TABキーで自動補完を有効にする
 (ac-set-trigger-key "TAB")
-;;auto-complete-modeを起動時に有効にする
+;; auto-complete-modeを起動時に有効にする
 (global-auto-complete-mode t)
 
-;;undo-tree
+;;; undo-tree
 ;;
 (require 'undo-tree)
-;;undo-treeを起動時に有効にする
+;; undo-treeを起動時に有効にする
 (global-undo-tree-mode t)
-;;M-/をredoに設定する
+;; M-/をredoに設定する
 (global-set-key (kbd "M-/") 'undo-tree-redo)
 
-;;dirtree
+;;; dirtree
 (require 'dirtree)
 
-;;C-c c で compile コマンドを呼び出す
+;;; C-c c で compile コマンドを呼び出す
 (define-key mode-specific-map "c" 'compile)
 
-;;C-c d でカーソル位置から行頭まで削除する
-;;カーソル位置から行頭まで削除
+;;; C-c d でカーソル位置から行頭まで削除する
+;; カーソル位置から行頭まで削除
 (defun backward-kill-line (arg)
   "Kill chars backward until encountering the end of a line."
   (interactive "p")
   (kill-line 0))
-;;C-c d に設定
+;; C-c d に設定
 (define-key global-map (kbd "C-c d") 'backward-kill-line)
 
-;;SBCL をデフォルトの Common Lisp 処理系に設定
+;;; SBCL をデフォルトの Common Lisp 処理系に設定
 (setq inferior-lisp-program "sbcl")
-;;~/slime を load-path に追加
-(add-to-list `load-path (expand-file-name "C:/home/slime"))
-;;SLIME のロード
+;; ~/slime を load-path に追加
+(add-to-list `load-path (expand-file-name "~/slime"))
+;; SLIME のロード
 (require 'slime)
 (slime-setup '(slime-repl slime-fancy slime-banner))
 
-;;カラーテーマの変更
+;;; カラーテーマの変更
 (load-theme 'ir-black t)
 
-;;Schemeモードの設定
-;;gaucheに渡す文字コードをUTF-8に設定
+;;; Schemeモードの設定
+;; gaucheに渡す文字コードをUTF-8に設定
 (setq process-coding-system-alist
       (cons '("gosh" utf-8 . utf-8) process-coding-system-alist))
-;;Emacsのバッファ内で動かすScheme処理系をgaucheに設定
+;; Emacsのバッファ内で動かすScheme処理系をgaucheに設定
 (setq scheme-program-name "gosh -i")
-;;Schemeモードをより便利なcmuscheme.elで使用する設定
+;; Schemeモードをより便利なcmuscheme.elで使用する設定
 (autoload 'scheme-mode "cmuscheme" "Major mode for Scheme." t)
 (autoload 'run-scheme "cmuscheme" "Run an inferior Scheme process." t)
-;;ウィンドウを2つに分け、一方でgaucheインタプリタを実行する関数（コマンド）を定義し、C-c S で起動できるように設定
+;; ウィンドウを2つに分け、一方でgaucheインタプリタを実行する関数（コマンド）を定義し、C-c S で起動できるように設定
 (defun scheme-other-window ()
   "Run scheme on other window"
   (interactive)
@@ -165,3 +165,59 @@
   (run-scheme scheme-program-name))
 (define-key global-map
   "\C-cS" 'scheme-other-window)
+
+;;; C-n で半ページ先に飛ぶ
+(define-key global-map "\C-n" 'my-next-line)
+;;
+(defun my-next-line ()
+  (interactive)
+  (next-line 19))
+
+;;; M-n で行の真ん中に飛ぶ
+(define-key global-map "\M-n" 'my-move-char)
+;;
+(defun my-move-char ()
+  (interactive)
+  (let (my-point)
+    (setq my-point (progn (end-of-line) (current-column)))
+    (move-to-column (/ my-point 2))))
+
+;;; C-p で対応括弧に飛ぶ
+(define-key global-map "\C-p" 'my-move-match-paren)
+;;
+(defun my-move-match-paren ()
+  (interactive)
+  (let ((flag 0) p)
+    (setq p (point))
+    (re-search-forward "[()]" nil t)
+    (cond
+     ((and (= p (match-beginning 0)) (string= "(" (buffer-substring (match-beginning 0) (match-end 0))))
+      (goto-char (1+ p)))
+     ((and (= p (match-beginning 0)) (string= ")" (buffer-substring (match-beginning 0) (match-end 0))))
+      (goto-char (match-beginning 0)))
+     (t
+      (goto-char p)))
+    (re-search-forward "[()]" nil t)
+    (if (string= ")" (buffer-substring (match-beginning 0) (match-end 0)))
+        (goto-char (match-end 0))
+      (setq flag (1+ flag))
+      (while (>= flag 0)
+        (re-search-forward "[()]" nil t)
+        (if (string= "(" (buffer-substring (match-beginning 0) (match-end 0)))
+            (setq flag (1+ flag))
+          (setq flag (1- flag)))))))
+
+;;; M-p でカーソルを固定したまま画面を前ページにスクロール
+(define-key global-map "\M-p" 'my-move-backward)
+;;
+(defun my-move-backward ()
+  (interactive)
+  (scroll-down 1))
+
+;;; M-a でタブや空白を無視した、その行のプログラム部分の先頭に飛ぶ
+(define-key global-map "\M-a" 'my-head-jump)
+;;
+(defun my-head-jump ()
+  (interactive)
+  (beginning-of-line)
+  (skip-chars-forward " \t"))
