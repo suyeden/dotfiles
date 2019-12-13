@@ -11,7 +11,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 132 :width normal :foundry "outline" :family "Ricty Diminished"))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "outline" :family "Ricty Diminished"))))
  '(font-lock-comment-face ((t (:foreground "gray45")))))
 
 ;;; 環境を日本語,UTF-8にする
@@ -59,8 +59,28 @@
 ;;; スクロールは1行ごとに
 (setq scroll-conservatively 1)
 
-;;; C-kで行全体を削除する
-(setq kill-whole-line t)
+;;; C-kで行のカーソル以降を削除する
+(defun forward-delete-line ()
+  "Delete chars forward until encountering the end of a line."
+  (interactive)
+  (let ((p (point)))
+    (if (= p (progn (end-of-line) (point)))
+        (delete-forward-char 1)
+      (delete-region p (progn (end-of-line) (point))))))
+;;
+(define-key global-map "\C-k" 'forward-delete-line)
+
+;;; C-c K で行のカーソル以降をkillする
+(defun forward-kill-line ()
+  "Kill chars forward until encountering the end of a line."
+  (interactive)
+  (kill-region
+   (point)
+   (progn
+     (end-of-line)
+     (point))))
+;;
+(define-key global-map "\C-cK" 'forward-kill-line)
 
 ;;; dired設定
 (require 'dired-x)
@@ -129,12 +149,17 @@
 
 ;;; C-c d でカーソル位置から行頭まで削除する
 ;; カーソル位置から行頭まで削除
-(defun backward-kill-line (arg)
-  "Kill chars backward until encountering the end of a line."
-  (interactive "p")
-  (kill-line 0))
+(defun backward-delete-line ()
+  "Delete chars backward until encountering the beginning of a line."
+  (interactive)
+  (let ((p (point)))
+    (delete-region
+     (progn
+       (beginning-of-line)
+       (point))
+     p)))
 ;; C-c d に設定
-(define-key global-map (kbd "C-c d") 'backward-kill-line)
+(define-key global-map (kbd "C-c d") 'backward-delete-line)
 
 ;;; SBCL をデフォルトの Common Lisp 処理系に設定
 (setq inferior-lisp-program "sbcl")
@@ -173,39 +198,28 @@
   (interactive)
   (next-line 19))
 
-;;; M-n で行の真ん中に飛ぶ
-(define-key global-map "\M-n" 'my-move-char)
+;;; C-p で次の括弧に飛ぶ
+(define-key global-map "\C-p" 'my-move-forward-paren)
 ;;
-(defun my-move-char ()
+(defun my-move-forward-paren ()
   (interactive)
-  (let (my-point)
-    (setq my-point (progn (end-of-line) (current-column)))
-    (move-to-column (/ my-point 2))))
+  (re-search-forward "[()]" nil t)
+  (goto-char (match-end 0)))
 
-;;; C-p で対応括弧に飛ぶ
-(define-key global-map "\C-p" 'my-move-match-paren)
+;;; C-c P で前の括弧に飛ぶ
+(define-key global-map "\C-cP" 'my-move-backward-paren)
 ;;
-(defun my-move-match-paren ()
+(defun my-move-backward-paren ()
   (interactive)
-  (let ((flag 0) p)
-    (setq p (point))
-    (re-search-forward "[()]" nil t)
-    (cond
-     ((and (= p (match-beginning 0)) (string= "(" (buffer-substring (match-beginning 0) (match-end 0))))
-      (goto-char (1+ p)))
-     ((and (= p (match-beginning 0)) (string= ")" (buffer-substring (match-beginning 0) (match-end 0))))
-      (goto-char (match-beginning 0)))
-     (t
-      (goto-char p)))
-    (re-search-forward "[()]" nil t)
-    (if (string= ")" (buffer-substring (match-beginning 0) (match-end 0)))
-        (goto-char (match-end 0))
-      (setq flag (1+ flag))
-      (while (>= flag 0)
-        (re-search-forward "[()]" nil t)
-        (if (string= "(" (buffer-substring (match-beginning 0) (match-end 0)))
-            (setq flag (1+ flag))
-          (setq flag (1- flag)))))))
+  (re-search-backward "[()]" nil t)
+  (goto-char (match-beginning 0)))
+
+;;; M-n でカーソルを固定したまま画面を次ページにスクロール
+(define-key global-map "\M-n" 'my-move-forward)
+;;
+(defun my-move-forward ()
+  (interactive)
+  (scroll-up 1))
 
 ;;; M-p でカーソルを固定したまま画面を前ページにスクロール
 (define-key global-map "\M-p" 'my-move-backward)
@@ -214,10 +228,11 @@
   (interactive)
   (scroll-down 1))
 
-;;; M-a でタブや空白を無視した、その行のプログラム部分の先頭に飛ぶ
-(define-key global-map "\M-a" 'my-head-jump)
+;;; M-a で行の真ん中に飛ぶ
+(define-key global-map "\M-a" 'my-move-char)
 ;;
-(defun my-head-jump ()
+(defun my-move-char ()
   (interactive)
-  (beginning-of-line)
-  (skip-chars-forward " \t"))
+  (let (my-point)
+    (setq my-point (progn (end-of-line) (current-column)))
+    (move-to-column (/ my-point 2))))
