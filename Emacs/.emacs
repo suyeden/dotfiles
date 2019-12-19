@@ -206,8 +206,8 @@
   (re-search-forward "[()]" nil t)
   (goto-char (match-end 0)))
 
-;;; C-c p で前の括弧に飛ぶ
-(define-key global-map "\C-cp" 'my-move-backward-paren)
+;;; C-c-p で前の括弧に飛ぶ
+(define-key global-map "\C-c\C-p" 'my-move-backward-paren)
 ;;
 (defun my-move-backward-paren ()
   (interactive)
