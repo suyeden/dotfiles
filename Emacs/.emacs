@@ -11,7 +11,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "outline" :family "Ricty Diminished"))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 135 :width normal :foundry "outline" :family "Ricty Diminished"))))
  '(font-lock-comment-face ((t (:foreground "gray45")))))
 
 ;;; 環境を日本語,UTF-8にする
@@ -206,8 +206,8 @@
   (re-search-forward "[()]" nil t)
   (goto-char (match-end 0)))
 
-;;; C-c P で前の括弧に飛ぶ
-(define-key global-map "\C-cP" 'my-move-backward-paren)
+;;; C-c p で前の括弧に飛ぶ
+(define-key global-map "\C-cp" 'my-move-backward-paren)
 ;;
 (defun my-move-backward-paren ()
   (interactive)
