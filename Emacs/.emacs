@@ -70,7 +70,7 @@
 ;;
 (define-key global-map "\C-k" 'forward-delete-line)
 
-;;; C-c K で行のカーソル以降をkillする
+;;; C-c k で行のカーソル以降をkillする
 (defun forward-kill-line ()
   "Kill chars forward until encountering the end of a line."
   (interactive)
@@ -80,7 +80,7 @@
      (end-of-line)
      (point))))
 ;;
-(define-key global-map "\C-cK" 'forward-kill-line)
+(define-key global-map "\C-ck" 'forward-kill-line)
 
 ;;; dired設定
 (require 'dired-x)
