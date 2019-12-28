@@ -57,7 +57,10 @@
 (column-number-mode t)
 
 ;;; スクロールは1行ごとに
-(setq scroll-conservatively 1)
+(setq scroll-conservatively 35
+      scroll-margin 0
+      scroll-step 1)
+;;(setq scroll-conservatively 1)
 
 ;;; C-kで行のカーソル以降を削除する
 (defun forward-delete-line ()
