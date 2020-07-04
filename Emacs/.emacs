@@ -5,13 +5,13 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (tangotango-theme flatland-black-theme ir-black-theme dirtree auto-complete undo-tree))))
+    (auto-complete undo-tree dirtree tangotango-theme flatland-black-theme ir-black-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 135 :width normal :foundry "outline" :family "Ricty Diminished"))))
+ '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "outline" :family "Ricty Diminished"))))
  '(font-lock-comment-face ((t (:foreground "gray45")))))
 
 ;;; 環境を日本語,UTF-8にする
@@ -147,8 +147,8 @@
 ;;; dirtree
 (require 'dirtree)
 
-;;; C-c c で compile コマンドを呼び出す
-(define-key mode-specific-map "c" 'compile)
+;;; C-c m で compile コマンドを呼び出す
+(define-key mode-specific-map "m" 'compile)
 
 ;;; C-c d でカーソル位置から行頭まで削除する
 ;; カーソル位置から行頭まで削除
@@ -175,24 +175,24 @@
 ;;; カラーテーマの変更
 (load-theme 'ir-black t)
 
-;;; Schemeモードの設定
-;; gaucheに渡す文字コードをUTF-8に設定
-(setq process-coding-system-alist
-      (cons '("gosh" utf-8 . utf-8) process-coding-system-alist))
-;; Emacsのバッファ内で動かすScheme処理系をgaucheに設定
-(setq scheme-program-name "gosh -i")
-;; Schemeモードをより便利なcmuscheme.elで使用する設定
-(autoload 'scheme-mode "cmuscheme" "Major mode for Scheme." t)
-(autoload 'run-scheme "cmuscheme" "Run an inferior Scheme process." t)
-;; ウィンドウを2つに分け、一方でgaucheインタプリタを実行する関数（コマンド）を定義し、C-c S で起動できるように設定
-(defun scheme-other-window ()
-  "Run scheme on other window"
-  (interactive)
-  (switch-to-buffer-other-window
-   (get-buffer-create "*scheme*"))
-  (run-scheme scheme-program-name))
-(define-key global-map
-  "\C-cS" 'scheme-other-window)
+;; ;;; Schemeモードの設定
+;; ;; gaucheに渡す文字コードをUTF-8に設定
+;; (setq process-coding-system-alist
+;;       (cons '("gosh" utf-8 . utf-8) process-coding-system-alist))
+;; ;; Emacsのバッファ内で動かすScheme処理系をgaucheに設定
+;; (setq scheme-program-name "gosh -i")
+;; ;; Schemeモードをより便利なcmuscheme.elで使用する設定
+;; (autoload 'scheme-mode "cmuscheme" "Major mode for Scheme." t)
+;; (autoload 'run-scheme "cmuscheme" "Run an inferior Scheme process." t)
+;; ;; ウィンドウを2つに分け、一方でgaucheインタプリタを実行する関数（コマンド）を定義し、C-c S で起動できるように設定
+;; (defun scheme-other-window ()
+;;   "Run scheme on other window"
+;;   (interactive)
+;;   (switch-to-buffer-other-window
+;;    (get-buffer-create "*scheme*"))
+;;   (run-scheme scheme-program-name))
+;; (define-key global-map
+;;   "\C-cS" 'scheme-other-window)
 
 ;;; C-n で半ページ先に飛ぶ
 (define-key global-map "\C-n" 'my-next-line)
@@ -239,3 +239,61 @@
   (let (my-point)
     (setq my-point (progn (end-of-line) (current-column)))
     (move-to-column (/ my-point 2))))
+
+;;; org-mode の設定
+;;
+;; ファイルの場所 (org-default-notes-file の場所)
+(setq org-directory "~/org/")
+;; メモの挿入先 (org-default-notes-file のファイル名)
+(setq org-default-notes-file "notes.org")
+;; .org ファイルは自動的に org-mode
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+;; 見出しの余分な * を消す
+(setq org-hide-leading-stars t)
+;; 画像をインラインで表示
+(setq org-startup-with-inline-images t)
+;; LOGBOOK drawer に時間を格納する
+(setq org-clock-into-drawer t)
+;; org-capture のテンプレート(メニュー)の設定
+(setq org-capture-templates
+      '(("m"
+         "Memo"
+         entry
+         (file+datetree "~/org/notes.org")
+         "* %U\n %?\n"
+         :empty-lines 1)
+        ("t"
+         "Task"
+         entry
+         (file+datetree "~/org/notes.org")
+         "* TODO %? %T\n"
+         :empty-lines 1)
+        ("c"
+         "Check"
+         plain
+         (file+datetree "~/org/notes.org")
+         "%?"
+         :jump-to-captured 1
+         :unnarrowed 1)))
+;; org-directory 内のファイルすべてから agenda を作成する
+(setq my-org-agenda-dir "~/org/")
+(setq org-agenda-files (list my-org-agenda-dir))
+;; TODO の状態
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "|" "DONE(d)")))
+;; DONE の時刻を記録
+(setq org-log-done 'time)
+;; 行の折り返し
+(setq org-startup-truncated nil)
+;; org-refile の設定
+(setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+;; キーバインド
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-cc" 'org-capture)
+(define-key global-map "\C-ca" 'org-agenda)
+
+;;; 自作メジャーモード (自作 Emacs-Lisp ファイル) のロード
+(add-to-list 'load-path "~/.emacs.d/lisp")
+;;
+;; blog-mode の読み込み
+(load-library "blog-mode.el")
