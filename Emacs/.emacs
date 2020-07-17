@@ -1,19 +1,3 @@
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (auto-complete undo-tree dirtree tangotango-theme flatland-black-theme ir-black-theme))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "outline" :family "Ricty Diminished"))))
- '(font-lock-comment-face ((t (:foreground "gray45")))))
-
 ;;; 環境を日本語,UTF-8にする
 (set-locale-environment nil)
 (set-language-environment "Japanese")
@@ -62,33 +46,7 @@
       scroll-step 1)
 ;;(setq scroll-conservatively 1)
 
-;;; C-kで行のカーソル以降を削除する
-(defun forward-delete-line ()
-  "Delete chars forward until encountering the end of a line."
-  (interactive)
-  (let ((p (point)))
-    (if (= p (progn (end-of-line) (point)))
-        (delete-forward-char 1)
-      (delete-region p (progn (end-of-line) (point))))))
-;;
-(define-key global-map "\C-k" 'forward-delete-line)
-
-;;; C-c k で行のカーソル以降をkillする
-(defun forward-kill-line ()
-  "Kill chars forward until encountering the end of a line."
-  (interactive)
-  (kill-region
-   (point)
-   (progn
-     (end-of-line)
-     (point))))
-;;
-(define-key global-map "\C-ck" 'forward-kill-line)
-
-;;; dired設定
-(require 'dired-x)
-
-;;; "yes or no"の選択を"y or n"にする
+;;; "yes or no" の選択を "y or n" にする
 (fset 'yes-or-no-p 'y-or-n-p)
 
 ;;; beep音を消す
@@ -102,10 +60,18 @@
 ;;; 括弧の自動補完
 (electric-pair-mode 1)
 
-;;; ウィンドウ間の移動のキーバインド変更
-(global-set-key "\C-t" 'other-window)
 
-;;; パッケージ読み込み(package.elの有効化)
+;;;;
+;;;; package, mode, file 関連
+;;;;
+
+
+;;; カスタムファイルの指定
+(setq custom-file "~/.emacs.d/custom.el")
+(if (file-exists-p (expand-file-name custom-file))
+    (load-file (expand-file-name custom-file)))
+
+;;; package.el の有効化, パッケージ読み込み
 ;;
 (require 'package)
 ;;
@@ -123,46 +89,37 @@
 ;; marmaladeはHTTPアクセスすると証明書エラーでフリーズするので注意
 ;; (add-to-list 'package-archives '("marmalade"."http://marmalade-repo.org/packages/")t)
 ;;
+;; パッケージのインストール先を load-path へ自動追加
+;; (package-install でインストールしたパッケージは require や autoload が不要になる)
 (package-initialize)
+
+;;; カラーテーマの変更
+(load-theme 'ir-black t)
+
+;;; dired 設定
+(require 'dired-x)
 
 ;;; auto-complete
 ;;
-;; auto-complete-configの設定ファイルを読み込む
+;; auto-complete-config の設定ファイルを読み込む
 (require 'auto-complete-config)
 ;;
 (ac-config-default)
 ;; TABキーで自動補完を有効にする
 (ac-set-trigger-key "TAB")
-;; auto-complete-modeを起動時に有効にする
+;; auto-complete-mode を起動時に有効にする
 (global-auto-complete-mode t)
 
 ;;; undo-tree
 ;;
 (require 'undo-tree)
-;; undo-treeを起動時に有効にする
+;; undo-tree を起動時に有効にする
 (global-undo-tree-mode t)
-;; M-/をredoに設定する
+;; M-/ を redo に設定する
 (global-set-key (kbd "M-/") 'undo-tree-redo)
 
 ;;; dirtree
 (require 'dirtree)
-
-;;; C-c m で compile コマンドを呼び出す
-(define-key mode-specific-map "m" 'compile)
-
-;;; C-c d でカーソル位置から行頭まで削除する
-;; カーソル位置から行頭まで削除
-(defun backward-delete-line ()
-  "Delete chars backward until encountering the beginning of a line."
-  (interactive)
-  (let ((p (point)))
-    (delete-region
-     (progn
-       (beginning-of-line)
-       (point))
-     p)))
-;; C-c d に設定
-(define-key global-map (kbd "C-c d") 'backward-delete-line)
 
 ;;; SBCL をデフォルトの Common Lisp 処理系に設定
 (setq inferior-lisp-program "sbcl")
@@ -171,9 +128,6 @@
 ;; SLIME のロード
 (require 'slime)
 (slime-setup '(slime-repl slime-fancy slime-banner))
-
-;;; カラーテーマの変更
-(load-theme 'ir-black t)
 
 ;; ;;; Schemeモードの設定
 ;; ;; gaucheに渡す文字コードをUTF-8に設定
@@ -193,52 +147,6 @@
 ;;   (run-scheme scheme-program-name))
 ;; (define-key global-map
 ;;   "\C-cS" 'scheme-other-window)
-
-;;; C-n で半ページ先に飛ぶ
-(define-key global-map "\C-n" 'my-next-line)
-;;
-(defun my-next-line ()
-  (interactive)
-  (next-line 19))
-
-;;; C-p で次の括弧に飛ぶ
-(define-key global-map "\C-p" 'my-move-forward-paren)
-;;
-(defun my-move-forward-paren ()
-  (interactive)
-  (re-search-forward "[()]" nil t)
-  (goto-char (match-end 0)))
-
-;;; C-c-p で前の括弧に飛ぶ
-(define-key global-map "\C-c\C-p" 'my-move-backward-paren)
-;;
-(defun my-move-backward-paren ()
-  (interactive)
-  (re-search-backward "[()]" nil t)
-  (goto-char (match-beginning 0)))
-
-;;; M-n でカーソルを固定したまま画面を次ページにスクロール
-(define-key global-map "\M-n" 'my-move-forward)
-;;
-(defun my-move-forward ()
-  (interactive)
-  (scroll-up 1))
-
-;;; M-p でカーソルを固定したまま画面を前ページにスクロール
-(define-key global-map "\M-p" 'my-move-backward)
-;;
-(defun my-move-backward ()
-  (interactive)
-  (scroll-down 1))
-
-;;; M-a で行の真ん中に飛ぶ
-(define-key global-map "\M-a" 'my-move-char)
-;;
-(defun my-move-char ()
-  (interactive)
-  (let (my-point)
-    (setq my-point (progn (end-of-line) (current-column)))
-    (move-to-column (/ my-point 2))))
 
 ;;; org-mode の設定
 ;;
@@ -292,8 +200,134 @@
 (define-key global-map "\C-cc" 'org-capture)
 (define-key global-map "\C-ca" 'org-agenda)
 
+;;; python-mode における module のリロード問題の解決
+;;
+;; Run python and pop-up its shell
+;; Kill process to solve the reload module problem
+(defun my-python-shell-run ()
+  (interactive)
+  (when (get-buffer-process "*Python*")
+    (set-process-query-on-exit-flag (get-buffer-process "*Python*") nil)
+    (kill-process (get-buffer-process "*Python*"))
+    ;; If you want to clean the buffer too
+    ;; (kill-buffer "*Python*")
+    ;; Not so fast!
+    (sleep-for 0.5))
+  (run-python (python-shell-parse-command) nil nil)
+  (python-shell-send-buffer)
+  ;; Pop new window only if shell isn't visible
+  ;; in any frame
+  (unless (get-buffer-window "*Python*" t)
+    (python-shell-switch-to-shell)))
+;;
+(defun my-python-shell-run-region ()
+  (interactive)
+  (python-shell-send-region (region-beginning) (region-end))
+  (python-shell-switch-to-shell))
+;;
+(eval-after-load "python"
+  '(progn
+     (define-key python-mode-map (kbd "C-c C-c") 'my-python-shell-run)
+     (define-key python-mode-map (kbd "C-c C-r") 'my-python-shell-run-region)
+     (define-key python-mode-map (kbd "C-h f") 'python-eldoc-at-point)))
+
 ;;; 自作メジャーモード (自作 Emacs-Lisp ファイル) のロード
 (add-to-list 'load-path "~/.emacs.d/lisp")
 ;;
 ;; blog-mode の読み込み
 (load-library "blog-mode.el")
+
+
+;;;;
+;;;; key-bindings
+;;;;
+
+
+;;; C-k で行のカーソル以降を削除する
+(defun forward-delete-line ()
+  "Delete chars forward until encountering the end of a line."
+  (interactive)
+  (let ((p (point)))
+    (if (= p (progn (end-of-line) (point)))
+        (delete-forward-char 1)
+      (delete-region p (progn (end-of-line) (point))))))
+;;
+(define-key global-map "\C-k" 'forward-delete-line)
+
+;;; C-c k で行のカーソル以降をkillする
+(defun forward-kill-line ()
+  "Kill chars forward until encountering the end of a line."
+  (interactive)
+  (kill-region
+   (point)
+   (progn
+     (end-of-line)
+     (point))))
+;;
+(define-key global-map "\C-ck" 'forward-kill-line)
+
+;;; ウィンドウ間の移動のキーバインド変更
+(global-set-key "\C-t" 'other-window)
+
+;;; C-c m で compile コマンドを呼び出す
+(define-key mode-specific-map "m" 'compile)
+
+;;; C-c d でカーソル位置から行頭まで削除する
+;; カーソル位置から行頭まで削除
+(defun backward-delete-line ()
+  "Delete chars backward until encountering the beginning of a line."
+  (interactive)
+  (let ((p (point)))
+    (delete-region
+     (progn
+       (beginning-of-line)
+       (point))
+     p)))
+;; C-c d に設定
+(define-key global-map (kbd "C-c d") 'backward-delete-line)
+
+;;; C-n で半ページ先に飛ぶ
+(define-key global-map "\C-n" 'my-next-line)
+;;
+(defun my-next-line ()
+  (interactive)
+  (next-line 19))
+
+;;; C-p で次の括弧に飛ぶ
+(define-key global-map "\C-p" 'my-move-forward-paren)
+;;
+(defun my-move-forward-paren ()
+  (interactive)
+  (re-search-forward "[()]" nil t)
+  (goto-char (match-end 0)))
+
+;;; C-c-p で前の括弧に飛ぶ
+(define-key global-map "\C-c\C-p" 'my-move-backward-paren)
+;;
+(defun my-move-backward-paren ()
+  (interactive)
+  (re-search-backward "[()]" nil t)
+  (goto-char (match-beginning 0)))
+
+;;; M-n でカーソルを固定したまま画面を次ページにスクロール
+(define-key global-map "\M-n" 'my-move-forward)
+;;
+(defun my-move-forward ()
+  (interactive)
+  (scroll-up 1))
+
+;;; M-p でカーソルを固定したまま画面を前ページにスクロール
+(define-key global-map "\M-p" 'my-move-backward)
+;;
+(defun my-move-backward ()
+  (interactive)
+  (scroll-down 1))
+
+;;; M-a で行の真ん中に飛ぶ
+(define-key global-map "\M-a" 'my-move-char)
+;;
+(defun my-move-char ()
+  (interactive)
+  (let (my-point)
+    (setq my-point (progn (end-of-line) (current-column)))
+    (move-to-column (/ my-point 2))))
