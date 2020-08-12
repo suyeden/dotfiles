@@ -258,7 +258,10 @@
   (setq web-mode-java-offset 2)
   (setq web-mode-asp-offset 2)
   (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-code-indent-offset 2))
+  (setq web-mode-code-indent-offset 2)
+  ;; auto tag closing
+  (setq web-mode-enable-auto-paring t)
+  (setq web-mode-enable-auto-closing t))
 ;;
 (add-hook 'web-mode-hook 'web-mode-hook)
 
