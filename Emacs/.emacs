@@ -121,13 +121,13 @@
 ;;; dirtree
 (require 'dirtree)
 
-;;; SBCL をデフォルトの Common Lisp 処理系に設定
-(setq inferior-lisp-program "sbcl")
-;; ~/slime を load-path に追加
-(add-to-list `load-path (expand-file-name "~/slime"))
-;; SLIME のロード
-(require 'slime)
-(slime-setup '(slime-repl slime-fancy slime-banner))
+;; ;;; SBCL をデフォルトの Common Lisp 処理系に設定
+;; (setq inferior-lisp-program "sbcl")
+;; ;; ~/slime を load-path に追加
+;; (add-to-list `load-path (expand-file-name "~/slime"))
+;; ;; SLIME のロード
+;; (require 'slime)
+;; (slime-setup '(slime-repl slime-fancy slime-banner))
 
 ;; ;;; Schemeモードの設定
 ;; ;; gaucheに渡す文字コードをUTF-8に設定
@@ -200,36 +200,36 @@
 (define-key global-map "\C-cc" 'org-capture)
 (define-key global-map "\C-ca" 'org-agenda)
 
-;;; python-mode における module のリロード問題の解決
-;;
-;; Run python and pop-up its shell
-;; Kill process to solve the reload module problem
-(defun my-python-shell-run ()
-  (interactive)
-  (when (get-buffer-process "*Python*")
-    (set-process-query-on-exit-flag (get-buffer-process "*Python*") nil)
-    (kill-process (get-buffer-process "*Python*"))
-    ;; If you want to clean the buffer too
-    ;; (kill-buffer "*Python*")
-    ;; Not so fast!
-    (sleep-for 0.5))
-  (run-python (python-shell-parse-command) nil nil)
-  (python-shell-send-buffer)
-  ;; Pop new window only if shell isn't visible
-  ;; in any frame
-  (unless (get-buffer-window "*Python*" t)
-    (python-shell-switch-to-shell)))
-;;
-(defun my-python-shell-run-region ()
-  (interactive)
-  (python-shell-send-region (region-beginning) (region-end))
-  (python-shell-switch-to-shell))
-;;
-(eval-after-load "python"
-  '(progn
-     (define-key python-mode-map (kbd "C-c C-c") 'my-python-shell-run)
-     (define-key python-mode-map (kbd "C-c C-r") 'my-python-shell-run-region)
-     (define-key python-mode-map (kbd "C-h f") 'python-eldoc-at-point)))
+;; ;;; python-mode における module のリロード問題の解決
+;; ;;
+;; ;; Run python and pop-up its shell
+;; ;; Kill process to solve the reload module problem
+;; (defun my-python-shell-run ()
+;;   (interactive)
+;;   (when (get-buffer-process "*Python*")
+;;     (set-process-query-on-exit-flag (get-buffer-process "*Python*") nil)
+;;     (kill-process (get-buffer-process "*Python*"))
+;;     ;; If you want to clean the buffer too
+;;     ;; (kill-buffer "*Python*")
+;;     ;; Not so fast!
+;;     (sleep-for 0.5))
+;;   (run-python (python-shell-parse-command) nil nil)
+;;   (python-shell-send-buffer)
+;;   ;; Pop new window only if shell isn't visible
+;;   ;; in any frame
+;;   (unless (get-buffer-window "*Python*" t)
+;;     (python-shell-switch-to-shell)))
+;; ;;
+;; (defun my-python-shell-run-region ()
+;;   (interactive)
+;;   (python-shell-send-region (region-beginning) (region-end))
+;;   (python-shell-switch-to-shell))
+;; ;;
+;; (eval-after-load "python"
+;;   '(progn
+;;      (define-key python-mode-map (kbd "C-c C-c") 'my-python-shell-run)
+;;      (define-key python-mode-map (kbd "C-c C-r") 'my-python-shell-run-region)
+;;      (define-key python-mode-map (kbd "C-h f") 'python-eldoc-at-point)))
 
 ;;; web-mode
 ;;
@@ -324,28 +324,36 @@
 ;; C-c d に設定
 (define-key global-map (kbd "C-c d") 'backward-delete-line)
 
-;;; C-n で半ページ先に飛ぶ
-(define-key global-map "\C-n" 'my-next-line)
-;;
-(defun my-next-line ()
-  (interactive)
-  (next-line 19))
+;; ;;; C-n で半ページ先に飛ぶ
+;; (define-key global-map "\C-n" 'my-next-line)
+;; ;;
+;; (defun my-next-line ()
+;;   (interactive)
+;;   (next-line 19))
 
-;;; C-p で次の括弧に飛ぶ
-(define-key global-map "\C-p" 'my-move-forward-paren)
+;; ;;; C-p で次の括弧に飛ぶ
+;; (define-key global-map "\C-p" 'my-move-forward-paren)
+;; ;;
+;; (defun my-move-forward-paren ()
+;;   (interactive)
+;;   (re-search-forward "[()]" nil t)
+;;   (goto-char (match-end 0)))
+
+;; ;;; C-c-p で前の括弧に飛ぶ
+;; (define-key global-map "\C-c\C-p" 'my-move-backward-paren)
+;; ;;
+;; (defun my-move-backward-paren ()
+;;   (interactive)
+;;   (re-search-backward "[()]" nil t)
+;;   (goto-char (match-beginning 0)))
+
+;;; C-c C-p で次の括弧に飛ぶ
+(define-key global-map "\C-c\C-p" 'my-move-forward-paren)
 ;;
 (defun my-move-forward-paren ()
   (interactive)
   (re-search-forward "[()]" nil t)
   (goto-char (match-end 0)))
-
-;;; C-c-p で前の括弧に飛ぶ
-(define-key global-map "\C-c\C-p" 'my-move-backward-paren)
-;;
-(defun my-move-backward-paren ()
-  (interactive)
-  (re-search-backward "[()]" nil t)
-  (goto-char (match-beginning 0)))
 
 ;;; M-n でカーソルを固定したまま画面を次ページにスクロール
 (define-key global-map "\M-n" 'my-move-forward)
@@ -361,11 +369,14 @@
   (interactive)
   (scroll-down 1))
 
-;;; M-a で行の真ん中に飛ぶ
-(define-key global-map "\M-a" 'my-move-char)
+;;; C-q でカーソル位置から行末までの中央に飛ぶ
+(define-key global-map "\C-q" 'my-move-char)
 ;;
 (defun my-move-char ()
   (interactive)
-  (let (my-point)
-    (setq my-point (progn (end-of-line) (current-column)))
-    (move-to-column (/ my-point 2))))
+  (let (my-end-point)
+    (save-excursion
+      (setq my-end-point (progn (end-of-line) (current-column))))
+    (if (not (= 0 (/ (- my-end-point (current-column)) 2)))
+        (move-to-column (+ (current-column) (/ (- my-end-point (current-column)) 2)))
+      (forward-line 1))))
