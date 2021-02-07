@@ -76,12 +76,12 @@
 (require 'package)
 ;;
 ;; HTTPS系のリポジトリ
-;; (add-to-list 'package-archives '("melpa"."https://melpa.milkbox.net/packages/")t)
+;; (add-to-list 'package-archives '("melpa"."https://melpa.org/packages/")t)
 ;; (add-to-list 'package-archives '("melpa-stable"."https://stable.melpa.org/packages/")t)
 ;; (add-to-list 'package-archives '("marmalade"."https://marmalade-repo.org/packages/")t)
 ;;
 ;; HTTP系のリポジトリ
-(add-to-list 'package-archives '("melpa"."http://melpa.milkbox.net/packages/")t)
+(add-to-list 'package-archives '("melpa"."http://melpa.org/packages/")t)
 (add-to-list 'package-archives '("melpa-stable"."http://stable.melpa.org/packages/")t)
 (add-to-list 'package-archives '("org"."http://orgmode.org/elpa/")t)
 (add-to-list 'package-archives '("ELPA"."http://tromey.com/elpa/")t)
@@ -269,11 +269,15 @@
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
+;;; magit
+(defalias 'magit 'magit-status)
+(global-set-key "\C-xg" 'magit-status)
+
 ;;; 自作メジャーモード (自作 Emacs-Lisp ファイル) のロード
 (add-to-list 'load-path "~/.emacs.d/lisp")
 ;;
 ;; blog-mode の読み込み
-(load-library "blog-mode.el")
+(load-library "blog-mode.elc")
 
 
 ;;;;
@@ -282,27 +286,23 @@
 
 
 ;;; C-k で行のカーソル以降を削除する
-(defun forward-delete-line ()
-  "Delete chars forward until encountering the end of a line."
-  (interactive)
-  (let ((p (point)))
-    (if (= p (progn (end-of-line) (point)))
-        (delete-forward-char 1)
-      (delete-region p (progn (end-of-line) (point))))))
-;;
-(define-key global-map "\C-k" 'forward-delete-line)
+(define-key global-map "\C-k"
+  '(lambda ()
+     (interactive)
+     (let ((p (point)))
+       (if (= p (progn (end-of-line) (point)))
+           (delete-forward-char 1)
+         (delete-region p (progn (end-of-line) (point)))))))
 
 ;;; C-c k で行のカーソル以降をkillする
-(defun forward-kill-line ()
-  "Kill chars forward until encountering the end of a line."
-  (interactive)
-  (kill-region
-   (point)
-   (progn
-     (end-of-line)
-     (point))))
-;;
-(define-key global-map "\C-ck" 'forward-kill-line)
+(define-key global-map "\C-ck"
+  '(lambda ()
+     (interactive)
+     (kill-region
+      (point)
+      (progn
+        (end-of-line)
+        (point)))))
 
 ;;; ウィンドウ間の移動のキーバインド変更
 (global-set-key "\C-t" 'other-window)
@@ -311,18 +311,15 @@
 (define-key mode-specific-map "m" 'compile)
 
 ;;; C-c d でカーソル位置から行頭まで削除する
-;; カーソル位置から行頭まで削除
-(defun backward-delete-line ()
-  "Delete chars backward until encountering the beginning of a line."
-  (interactive)
-  (let ((p (point)))
-    (delete-region
-     (progn
-       (beginning-of-line)
-       (point))
-     p)))
-;; C-c d に設定
-(define-key global-map (kbd "C-c d") 'backward-delete-line)
+(define-key global-map (kbd "C-c d")
+  '(lambda ()
+     (interactive)
+     (let ((p (point)))
+       (delete-region
+        (progn
+          (beginning-of-line)
+          (point))
+        p))))
 
 ;; ;;; C-n で半ページ先に飛ぶ
 ;; (define-key global-map "\C-n" 'my-next-line)
@@ -347,36 +344,59 @@
 ;;   (re-search-backward "[()]" nil t)
 ;;   (goto-char (match-beginning 0)))
 
+;; ;;; C-q でカーソル位置から行末までの中央に飛ぶ
+;; (define-key global-map "\C-q"
+;;   '(lambda ()
+;;      (interactive)
+;;      (let (my-end-point)
+;;        (save-excursion
+;;          (setq my-end-point (progn (end-of-line) (current-column))))
+;;        (if (not (= 0 (/ (- my-end-point (current-column)) 2)))
+;;            (move-to-column (+ (current-column) (/ (- my-end-point (current-column)) 2)))
+;;          (forward-line 1)))))
+
 ;;; C-c C-p で次の括弧に飛ぶ
-(define-key global-map "\C-c\C-p" 'my-move-forward-paren)
-;;
-(defun my-move-forward-paren ()
-  (interactive)
-  (re-search-forward "[()]" nil t)
-  (goto-char (match-end 0)))
+(define-key global-map "\C-c\C-p"
+  (lambda ()
+    (interactive)
+    (re-search-forward "[()]" nil t)
+    (goto-char (match-end 0))))
 
 ;;; M-n でカーソルを固定したまま画面を次ページにスクロール
-(define-key global-map "\M-n" 'my-move-forward)
-;;
-(defun my-move-forward ()
-  (interactive)
-  (scroll-up 1))
+(define-key global-map "\M-n" '
+  '(lambda ()
+     (interactive)
+     (scroll-up 1)))
 
 ;;; M-p でカーソルを固定したまま画面を前ページにスクロール
-(define-key global-map "\M-p" 'my-move-backward)
-;;
-(defun my-move-backward ()
-  (interactive)
-  (scroll-down 1))
+(define-key global-map "\M-p"
+  '(lambda ()
+     (interactive)
+     (scroll-down 1)))
 
-;;; C-q でカーソル位置から行末までの中央に飛ぶ
-(define-key global-map "\C-q" 'my-move-char)
-;;
-(defun my-move-char ()
-  (interactive)
-  (let (my-end-point)
-    (save-excursion
-      (setq my-end-point (progn (end-of-line) (current-column))))
-    (if (not (= 0 (/ (- my-end-point (current-column)) 2)))
-        (move-to-column (+ (current-column) (/ (- my-end-point (current-column)) 2)))
-      (forward-line 1))))
+;;; C-q でパスを補完する
+(define-key global-map "\C-q"
+  '(lambda ()
+     (interactive)
+     (let (path-intelli-dir path-intelli-alist path-intelli-insert-file)
+       (catch 'foo 
+         (save-excursion
+           (if (re-search-forward "\"" nil t)
+               nil
+             (message "Place the cursor at the correct position.")
+             (throw 'foo t))
+           (if (re-search-backward "\"\\(.+\\)\"" nil t)
+               (progn
+                 (setq path-intelli-dir (buffer-substring (match-beginning 1) (match-end 1)))
+                 (setq path-intelli-alist (directory-files (format "%s" path-intelli-dir)))
+                 (let (path-intelli-alist x)
+                   (while path-intelli-alist
+                     (if (or (string= "." (format "%s" (car path-intelli-alist))) (string= ".." (format "%s" (car path-intelli-alist))))
+                         nil
+                       (setq x (append x (car path-intelli-alist))))
+                     (setq x (cdr x)))
+                   (setq path-intelli-alist x))
+                 (setq path-intelli-insert-file (completing-read "Which file ? : " path-intelli-alist)))
+             (message "There is no File-Path.")
+             (throw 'foo t)))
+         (insert (format "%s" path-intelli-insert-file))))))
