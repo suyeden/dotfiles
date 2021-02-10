@@ -363,7 +363,7 @@
     (goto-char (match-end 0))))
 
 ;;; M-n でカーソルを固定したまま画面を次ページにスクロール
-(define-key global-map "\M-n" '
+(define-key global-map "\M-n"
   '(lambda ()
      (interactive)
      (scroll-up 1)))
