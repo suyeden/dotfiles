@@ -273,6 +273,11 @@
 (defalias 'magit 'magit-status)
 (global-set-key "\C-xg" 'magit-status)
 
+;;; grip-mode
+;; Python を導入済み、および pip install grip を実行済みであることを確認
+;; C-c C-g で grip-mode を起動する
+(define-key global-map "\C-c\C-g" 'grip-mode)
+
 ;;; 自作メジャーモード (自作 Emacs-Lisp ファイル) のロード
 (add-to-list 'load-path "~/.emacs.d/lisp")
 ;;
