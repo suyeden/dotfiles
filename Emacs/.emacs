@@ -67,7 +67,7 @@
 
 
 ;;; カスタムファイルの指定
-(setq custom-file "~/.emacs.d/custom.el")
+(setq custom-file "~/.emacs.d/custom.elc")
 (if (file-exists-p (expand-file-name custom-file))
     (load-file (expand-file-name custom-file)))
 
@@ -405,3 +405,56 @@
              (message "There is no File-Path.")
              (throw 'foo t)))
          (insert (format "%s" path-intelli-insert-file))))))
+
+;;; Org ファイルを開いている時 C-x x で Markdown へ書き出す
+(define-key global-map "\C-xx"
+  '(lambda ()
+     (interactive)
+     (let (my-file-name my-lang-name my-src-begin my-src-end)
+       (save-excursion
+         (goto-char (point-min))
+         (if (string-match ".+\.org" (format "%s" (buffer-name)))
+             (progn
+               (org-md-export-to-markdown)
+               (setq my-file-name (format "%s" (buffer-name)))
+               (with-temp-buffer
+                 (insert my-file-name)
+                 (goto-char (point-min))
+                 (re-search-forward "\\(.+\\)\.org" nil t)
+                 (setq my-file-name (buffer-substring (match-beginning 1) (match-end 1))))
+               (find-file (format "%s.md" my-file-name))
+               (goto-char (point-min))
+               (switch-to-buffer (format "%s.org" my-file-name))
+               (while (re-search-forward "+begin_src" nil t)
+                 (skip-chars-forward " ")
+                 (setq my-lang-name (buffer-substring (point) (progn (end-of-line) (point))))
+                 (forward-line)
+                 (skip-chars-forward " ")
+                 (setq my-src-begin (buffer-substring (point) (progn (end-of-line) (point))))
+                 (re-search-forward "+end_src" nil t)
+                 (forward-line -1)
+                 (skip-chars-forward " ")
+                 (setq my-src-end (buffer-substring (point) (progn (end-of-line) (point))))
+                 (switch-to-buffer (format "%s.md" my-file-name))
+                 (re-search-forward (format "%s" my-src-begin) nil t)
+                 (beginning-of-line)
+                 (skip-chars-forward " ")
+                 (delete-region (point) (progn (beginning-of-line) (point)))
+                 (insert (format "```%s\n" my-lang-name))
+                 (forward-line)
+                 (catch 'foo
+                   (while t
+                     (skip-chars-forward " ")
+                     (delete-region (point) (progn (beginning-of-line) (point)))
+                     (if (string= (format "%s" my-src-end) (buffer-substring (point) (progn (end-of-line) (point))))
+                         (progn
+                           (end-of-line)
+                           (insert "\n```")
+                           (throw 'foo t))
+                       (forward-line))))
+                 (switch-to-buffer (format "%s.org" my-file-name)))
+               (switch-to-buffer (format "%s.md" my-file-name))
+               (save-buffer)
+               (kill-buffer (format "%s.md" my-file-name))
+               (switch-to-buffer (format "%s.org" my-file-name)))
+           (message "Not Org-file !"))))))
