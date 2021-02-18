@@ -291,23 +291,25 @@
 
 
 ;;; C-k で行のカーソル以降を削除する
-(define-key global-map "\C-k"
-  '(lambda ()
-     (interactive)
-     (let ((p (point)))
-       (if (= p (progn (end-of-line) (point)))
-           (delete-forward-char 1)
-         (delete-region p (progn (end-of-line) (point)))))))
+(define-key global-map "\C-k" 'my-Emacs-del-back-line)
+;;
+(defun my-Emacs-del-back-line ()
+  (interactive)
+  (let ((p (point)))
+    (if (= p (progn (end-of-line) (point)))
+        (delete-char 1)
+      (delete-region p (progn (end-of-line) (point))))))
 
 ;;; C-c k で行のカーソル以降をkillする
-(define-key global-map "\C-ck"
-  '(lambda ()
-     (interactive)
-     (kill-region
-      (point)
-      (progn
-        (end-of-line)
-        (point)))))
+(define-key global-map "\C-ck" 'my-Emacs-kill-line)
+;;
+(defun my-Emacs-kill-line ()
+  (interactive)
+  (kill-region
+   (point)
+   (progn
+     (end-of-line)
+     (point))))
 
 ;;; ウィンドウ間の移動のキーバインド変更
 (global-set-key "\C-t" 'other-window)
@@ -316,15 +318,16 @@
 (define-key mode-specific-map "m" 'compile)
 
 ;;; C-c d でカーソル位置から行頭まで削除する
-(define-key global-map (kbd "C-c d")
-  '(lambda ()
-     (interactive)
-     (let ((p (point)))
-       (delete-region
-        (progn
-          (beginning-of-line)
-          (point))
-        p))))
+(define-key global-map "\C-cd" 'my-Emacs-del-for-line)
+;;
+(defun my-Emacs-del-for-line ()
+  (interactive)
+  (let ((p (point)))
+    (delete-region
+     (progn
+       (beginning-of-line)
+       (point))
+     p)))
 
 ;; ;;; C-n で半ページ先に飛ぶ
 ;; (define-key global-map "\C-n" 'my-next-line)
@@ -362,10 +365,9 @@
 
 ;;; C-c C-p で次の括弧に飛ぶ
 (define-key global-map "\C-c\C-p"
-  (lambda ()
+  '(lambda ()
     (interactive)
-    (re-search-forward "[()]" nil t)
-    (goto-char (match-end 0))))
+    (re-search-forward "[()]" nil t)))
 
 ;;; M-n でカーソルを固定したまま画面を次ページにスクロール
 (define-key global-map "\M-n"
@@ -380,81 +382,104 @@
      (scroll-down 1)))
 
 ;;; C-q でパスを補完する
-(define-key global-map "\C-q"
-  '(lambda ()
-     (interactive)
-     (let (path-intelli-dir path-intelli-alist path-intelli-insert-file)
-       (catch 'foo 
-         (save-excursion
-           (if (re-search-forward "\"" nil t)
-               nil
-             (message "Place the cursor at the correct position.")
-             (throw 'foo t))
-           (if (re-search-backward "\"\\(.+\\)\"" nil t)
-               (progn
-                 (setq path-intelli-dir (buffer-substring (match-beginning 1) (match-end 1)))
-                 (setq path-intelli-alist (directory-files (format "%s" path-intelli-dir)))
-                 (let (path-intelli-alist x)
-                   (while path-intelli-alist
-                     (if (or (string= "." (format "%s" (car path-intelli-alist))) (string= ".." (format "%s" (car path-intelli-alist))))
-                         nil
-                       (setq x (append x (car path-intelli-alist))))
-                     (setq x (cdr x)))
-                   (setq path-intelli-alist x))
-                 (setq path-intelli-insert-file (completing-read "Which file ? : " path-intelli-alist)))
-             (message "There is no File-Path.")
-             (throw 'foo t)))
-         (insert (format "%s" path-intelli-insert-file))))))
+(define-key global-map "\C-q" 'my-Emacs-completing-file-path)
+;;
+(defun my-Emacs-completing-file-path ()
+  (interactive)
+  (let (path-intelli-dir path-intelli-alist path-intelli-insert-file)
+    (catch 'foo 
+      (save-excursion
+        (if (re-search-forward "\"" nil t)
+            nil
+          (message "Place the cursor at the correct position.")
+          (throw 'foo t))
+        (if (re-search-backward "\"\\(.+\\)\"" nil t)
+            (progn
+              (setq path-intelli-dir (buffer-substring (match-beginning 1) (match-end 1)))
+              (setq path-intelli-alist (directory-files (format "%s" path-intelli-dir)))
+              (let (path-intelli-alist x)
+                (while path-intelli-alist
+                  (if (or (string= "." (format "%s" (car path-intelli-alist))) (string= ".." (format "%s" (car path-intelli-alist))))
+                      nil
+                    (setq x (append x (car path-intelli-alist))))
+                  (setq x (cdr x)))
+                (setq path-intelli-alist x))
+              (setq path-intelli-insert-file (completing-read "Which file ? : " path-intelli-alist)))
+          (message "There is no File-Path.")
+          (throw 'foo t)))
+      (insert (format "%s" path-intelli-insert-file)))))
 
-;;; Org ファイルを開いている時 C-x x で Markdown へ書き出す
-(define-key global-map "\C-xx"
-  '(lambda ()
-     (interactive)
-     (let (my-file-name my-lang-name my-src-begin my-src-end)
-       (save-excursion
-         (goto-char (point-min))
-         (if (string-match ".+\.org" (format "%s" (buffer-name)))
-             (progn
-               (org-md-export-to-markdown)
-               (setq my-file-name (format "%s" (buffer-name)))
-               (with-temp-buffer
-                 (insert my-file-name)
-                 (goto-char (point-min))
-                 (re-search-forward "\\(.+\\)\.org" nil t)
-                 (setq my-file-name (buffer-substring (match-beginning 1) (match-end 1))))
-               (find-file (format "%s.md" my-file-name))
-               (goto-char (point-min))
-               (switch-to-buffer (format "%s.org" my-file-name))
-               (while (re-search-forward "+begin_src" nil t)
-                 (skip-chars-forward " ")
-                 (setq my-lang-name (buffer-substring (point) (progn (end-of-line) (point))))
-                 (forward-line)
-                 (skip-chars-forward " ")
-                 (setq my-src-begin (buffer-substring (point) (progn (end-of-line) (point))))
-                 (re-search-forward "+end_src" nil t)
-                 (forward-line -1)
-                 (skip-chars-forward " ")
-                 (setq my-src-end (buffer-substring (point) (progn (end-of-line) (point))))
-                 (switch-to-buffer (format "%s.md" my-file-name))
-                 (re-search-forward (format "%s" my-src-begin) nil t)
-                 (beginning-of-line)
-                 (skip-chars-forward " ")
-                 (delete-region (point) (progn (beginning-of-line) (point)))
-                 (insert (format "```%s\n" my-lang-name))
-                 (forward-line)
-                 (catch 'foo
-                   (while t
-                     (skip-chars-forward " ")
-                     (delete-region (point) (progn (beginning-of-line) (point)))
-                     (if (string= (format "%s" my-src-end) (buffer-substring (point) (progn (end-of-line) (point))))
-                         (progn
-                           (end-of-line)
-                           (insert "\n```")
-                           (throw 'foo t))
-                       (forward-line))))
-                 (switch-to-buffer (format "%s.org" my-file-name)))
-               (switch-to-buffer (format "%s.md" my-file-name))
-               (save-buffer)
-               (kill-buffer (format "%s.md" my-file-name))
-               (switch-to-buffer (format "%s.org" my-file-name)))
-           (message "Not Org-file !"))))))
+;;; Org ファイルを開いている時 C-x x で諸機能を提供
+(define-key global-map "\C-xx" 'my-Emacs-org-option)
+;;
+(defun my-Emacs-org-option ()
+  ;; x : Markdown に書き出して整形
+  ;; t : Org ファイルのひな形を作成
+  (interactive)
+  (let (my-org-option-mode)
+    (if (string-match ".+\.org" (format "%s" (buffer-name)))
+        (progn
+          (setq my-org-option-mode (read-string "[x] export to Markdown\n[t] make a Template for Org-file\ncommand ? : "))
+          (while (not (or (string= "x" my-org-option-mode) (string= "t" my-org-option-mode)))
+            (setq my-org-option-mode (read-string "[x] export to Markdown\n[t] make a Template for Org-file\ncommand ? : ")))
+          (if (string= "x" my-org-option-mode)
+              (my-org-to-md)
+            (if (string= "t" my-org-option-mode)
+                (my-insert-org-template)
+              nil)))
+      (message "Not Org-file !"))))
+;;
+(defun my-org-to-md ()
+  "Org ファイルを Markdown ファイルに書き出す"
+  (let (my-file-name my-lang-name my-src-begin my-src-end)
+    (save-excursion
+      (goto-char (point-min))
+      (org-md-export-to-markdown)
+      (setq my-file-name (format "%s" (buffer-name)))
+      (with-temp-buffer
+        (insert my-file-name)
+        (goto-char (point-min))
+        (re-search-forward "\\(.+\\)\.org" nil t)
+        (setq my-file-name (buffer-substring (match-beginning 1) (match-end 1)))) ; with-temp-buffer
+      (find-file (format "%s.md" my-file-name))
+      (goto-char (point-min))
+      (switch-to-buffer (format "%s.org" my-file-name))
+      (while (re-search-forward "+begin_src" nil t)
+        (skip-chars-forward " ")
+        (setq my-lang-name (buffer-substring (point) (progn (end-of-line) (point))))
+        (forward-line)
+        (skip-chars-forward " ")
+        (setq my-src-begin (buffer-substring (point) (progn (end-of-line) (point))))
+        (re-search-forward "+end_src" nil t)
+        (forward-line -1)
+        (skip-chars-forward " ")
+        (setq my-src-end (buffer-substring (point) (progn (end-of-line) (point))))
+        (switch-to-buffer (format "%s.md" my-file-name))
+        (re-search-forward (format "%s" my-src-begin) nil t)
+        (beginning-of-line)
+        (skip-chars-forward " ")
+        (delete-region (point) (progn (beginning-of-line) (point)))
+        (insert (format "```%s\n" my-lang-name))
+        (forward-line)
+        (catch 'foo
+          (while t
+            (skip-chars-forward " ")
+            (delete-region (point) (progn (beginning-of-line) (point)))
+            (if (string= (format "%s" my-src-end) (buffer-substring (point) (progn (end-of-line) (point))))
+                (progn
+                  (end-of-line)
+                  (insert "\n```")
+                  (throw 'foo t))
+              (forward-line)))) ; catch
+        (switch-to-buffer (format "%s.org" my-file-name))) ; while
+      (switch-to-buffer (format "%s.md" my-file-name))
+      (save-buffer)
+      (kill-buffer (format "%s.md" my-file-name))
+      (switch-to-buffer (format "%s.org" my-file-name))
+      (message "Done!"))))
+;;
+(defun my-insert-org-template ()
+  "README.org のひな形を作成する"
+  (insert "#+TITLE: \n#+AUTHOR: suyeden\n#+EMAIL: \n#+OPTIONS: toc:nil num:nil author:nil creator:nil LaTeX:t \\n:t\n#+STARTUP: showall\n\n* ")
+  (goto-char (point-min))
+  (re-search-forward "+TITLE: " nil t))
