@@ -479,7 +479,7 @@
       (message "Done!"))))
 ;;
 (defun my-insert-org-template ()
-  "README.org のひな形を作成する"
+  "Org ファイルのひな形を作成する"
   (insert "#+TITLE: \n#+AUTHOR: suyeden\n#+EMAIL: \n#+OPTIONS: toc:nil num:nil author:nil creator:nil LaTeX:t \\n:t\n#+STARTUP: showall\n\n* ")
   (goto-char (point-min))
   (re-search-forward "+TITLE: " nil t))
