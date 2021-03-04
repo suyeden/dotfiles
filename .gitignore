@@ -1,3 +1,5 @@
+bin/
+src/
 Emacs/bin/
 Emacs/src/
 Emacs/.emacs.elc
