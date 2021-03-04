@@ -483,3 +483,24 @@
   (insert "#+TITLE: \n#+AUTHOR: suyeden\n#+EMAIL: \n#+OPTIONS: toc:nil num:nil author:nil creator:nil LaTeX:t \\n:t\n#+STARTUP: showall\n\n* ")
   (goto-char (point-min))
   (re-search-forward "+TITLE: " nil t))
+
+;;; ファイルマネージャを起動する
+(define-key global-map "\C-c\C-f" 'my-Emacs-open-file-manager)
+;;
+(defun my-Emacs-open-file-manager ()
+  "現在使用している OS を判定してファイルマネージャを起動する"
+  (interactive)
+  (let (file-manager-open-file)
+    (if (string= "windows-nt" (format "%s" system-type))
+        (progn
+          (setq file-manager-open-file (read-string "File manager: " default-directory))
+          (with-temp-buffer
+            (insert file-manager-open-file)
+            (goto-char (point-min))
+            (while (re-search-forward "/" nil t)
+              (delete-char -1)
+              (insert "\\"))
+            (goto-char (point-min))
+            (setq file-manager-open-file (buffer-substring-no-properties (point) (progn (end-of-line) (point)))))
+          (shell-command-to-string (format "explorer %s" file-manager-open-file)))
+      nil)))
