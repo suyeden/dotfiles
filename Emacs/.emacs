@@ -485,7 +485,7 @@
   (re-search-forward "+TITLE: " nil t))
 
 ;;; ファイルマネージャを起動する
-(define-key global-map "\C-c\C-f" 'my-Emacs-open-file-manager)
+(define-key global-map "\C-cf" 'my-Emacs-open-file-manager)
 ;;
 (defun my-Emacs-open-file-manager ()
   "現在使用している OS を判定してファイルマネージャを起動する"
@@ -493,7 +493,7 @@
   (let (file-manager-open-file)
     (if (string= "windows-nt" (format "%s" system-type))
         (progn
-          (setq file-manager-open-file (read-string "File manager: " default-directory))
+          (setq file-manager-open-file (read-directory-name "File manager: " default-directory))
           (with-temp-buffer
             (insert file-manager-open-file)
             (goto-char (point-min))
