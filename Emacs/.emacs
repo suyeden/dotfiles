@@ -402,9 +402,9 @@
   (let (my-org-option-mode)
     (if (string-match ".+\\.org" (format "%s" (buffer-name)))
         (progn
-          (setq my-org-option-mode (read-string "[x] export to Markdown\n[t] make a Template for Org-file\ncommand ? : "))
+          (setq my-org-option-mode (read-string "[x] Export to Markdown\n[t] Make a Template for Org-file\ncommand ? : "))
           (while (not (or (string= "x" my-org-option-mode) (string= "t" my-org-option-mode)))
-            (setq my-org-option-mode (read-string "[x] export to Markdown\n[t] make a Template for Org-file\ncommand ? : ")))
+            (setq my-org-option-mode (read-string "[x] Export to Markdown\n[t] Make a Template for Org-file\ncommand ? : ")))
           (if (string= "x" my-org-option-mode)
               (my-org-to-md)
             (if (string= "t" my-org-option-mode)
