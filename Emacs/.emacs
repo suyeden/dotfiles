@@ -329,29 +329,6 @@
        (point))
      p)))
 
-;; ;;; C-n で半ページ先に飛ぶ
-;; (define-key global-map "\C-n" 'my-next-line)
-;; ;;
-;; (defun my-next-line ()
-;;   (interactive)
-;;   (next-line 19))
-
-;; ;;; C-p で次の括弧に飛ぶ
-;; (define-key global-map "\C-p" 'my-move-forward-paren)
-;; ;;
-;; (defun my-move-forward-paren ()
-;;   (interactive)
-;;   (re-search-forward "[()]" nil t)
-;;   (goto-char (match-end 0)))
-
-;; ;;; C-c-p で前の括弧に飛ぶ
-;; (define-key global-map "\C-c\C-p" 'my-move-backward-paren)
-;; ;;
-;; (defun my-move-backward-paren ()
-;;   (interactive)
-;;   (re-search-backward "[()]" nil t)
-;;   (goto-char (match-beginning 0)))
-
 ;; ;;; C-q でカーソル位置から行末までの中央に飛ぶ
 ;; (define-key global-map "\C-q"
 ;;   '(lambda ()
@@ -363,20 +340,26 @@
 ;;            (move-to-column (+ (current-column) (/ (- my-end-point (current-column)) 2)))
 ;;          (forward-line 1)))))
 
-;;; C-c C-p で次の括弧に飛ぶ
-(define-key global-map "\C-c\C-p"
+;;; M-n で次の括弧に飛ぶ
+(define-key global-map "\M-n"
   '(lambda ()
     (interactive)
     (re-search-forward "[()]" nil t)))
 
-;;; M-n でカーソルを固定したまま画面を次ページにスクロール
-(define-key global-map "\M-n"
+;;; M-p で前の括弧に飛ぶ
+(define-key global-map "\M-p"
+  '(lambda ()
+     (interactive)
+     (re-search-backward "[()]" nil t)))
+
+;;; M-N でカーソルを固定したまま画面を次ページにスクロール
+(define-key global-map "\M-N"
   '(lambda ()
      (interactive)
      (scroll-up 1)))
 
-;;; M-p でカーソルを固定したまま画面を前ページにスクロール
-(define-key global-map "\M-p"
+;;; M-P でカーソルを固定したまま画面を前ページにスクロール
+(define-key global-map "\M-P"
   '(lambda ()
      (interactive)
      (scroll-down 1)))
@@ -504,3 +487,38 @@
             (setq file-manager-open-file (buffer-substring-no-properties (point) (progn (end-of-line) (point)))))
           (shell-command-to-string (format "explorer %s" file-manager-open-file)))
       nil)))
+
+;;; 現在のカーソル位置を保持して、再度呼ばれた時に記録したカーソル位置に戻る
+(defvar my-Emacs-record-marker nil)
+(define-key global-map "\C-c\C-p" 'my-Emacs-record-point)
+;;
+(defun my-Emacs-record-point ()
+  "マーカーが記録されていなければマーカーを作成し、記録されていればマーカー位置に移動してマーカーを削除する"
+  (interactive)
+  (if (string= "nil" (format "%s" my-Emacs-record-marker))
+      (progn
+        (setq my-Emacs-record-marker (make-marker))
+        (set-marker my-Emacs-record-marker (point))
+        (message "Point recorded!"))
+    (goto-char (marker-position my-Emacs-record-marker))
+    (set-marker my-Emacs-record-marker nil)
+    (setq my-Emacs-record-marker nil)
+    (message "Move point!")))
+
+;;; 記録したカーソル位置を破棄して、新しいカーソル位置を記録する
+(define-key global-map "\C-cp" 'my-Emacs-force-record-point)
+;;
+(defun my-Emacs-force-record-point ()
+  "新しいカーソル位置を強制的に記録する"
+  (interactive)
+  (if (string= "nil" (format "%s" my-Emacs-record-marker))
+      (progn
+        (setq my-Emacs-record-marker (make-marker))
+        (set-marker my-Emacs-record-marker (point))
+        (message "Point recorded!"))
+    (if (y-or-n-p "Other point has already been recorded! Continue this process?")
+        (progn
+          (set-marker my-Emacs-record-marker nil)
+          (set-marker my-Emacs-record-marker (point))
+          (message "Point recorded!"))
+      (message "Process killed!"))))
