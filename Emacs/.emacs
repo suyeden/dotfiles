@@ -341,25 +341,25 @@
 ;;          (forward-line 1)))))
 
 ;;; M-n で次の括弧に飛ぶ
-(define-key global-map "\M-n"
+(define-key global-map "\M-N"
   '(lambda ()
     (interactive)
     (re-search-forward "[()]" nil t)))
 
 ;;; M-p で前の括弧に飛ぶ
-(define-key global-map "\M-p"
+(define-key global-map "\M-P"
   '(lambda ()
      (interactive)
      (re-search-backward "[()]" nil t)))
 
 ;;; M-N でカーソルを固定したまま画面を次ページにスクロール
-(define-key global-map "\M-N"
+(define-key global-map "\M-n"
   '(lambda ()
      (interactive)
      (scroll-up 1)))
 
 ;;; M-P でカーソルを固定したまま画面を前ページにスクロール
-(define-key global-map "\M-P"
+(define-key global-map "\M-p"
   '(lambda ()
      (interactive)
      (scroll-down 1)))
