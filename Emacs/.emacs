@@ -400,7 +400,7 @@
   ;; t : Org ファイルのひな形を作成
   (interactive)
   (let (my-org-option-mode)
-    (if (string-match ".+\.org" (format "%s" (buffer-name)))
+    (if (string-match ".+\\.org" (format "%s" (buffer-name)))
         (progn
           (setq my-org-option-mode (read-string "[x] export to Markdown\n[t] make a Template for Org-file\ncommand ? : "))
           (while (not (or (string= "x" my-org-option-mode) (string= "t" my-org-option-mode)))
@@ -422,9 +422,13 @@
       (with-temp-buffer
         (insert my-file-name)
         (goto-char (point-min))
-        (re-search-forward "\\(.+\\)\.org" nil t)
+        (re-search-forward "\\(.+\\)\\.org" nil t)
         (setq my-file-name (buffer-substring (match-beginning 1) (match-end 1)))) ; with-temp-buffer
       (find-file (format "%s.md" my-file-name))
+      (goto-char (point-min))
+      (while (re-search-forward "\\[\\\\!" nil t)
+        (forward-char -1)
+        (delete-char -1))
       (goto-char (point-min))
       (switch-to-buffer (format "%s.org" my-file-name))
       (while (re-search-forward "+begin_src" nil t)
@@ -521,4 +525,4 @@
           (set-marker my-Emacs-record-marker nil)
           (set-marker my-Emacs-record-marker (point))
           (message "Point recorded!"))
-      (message "Process killed!"))))
+      (message "Process killed"))))
