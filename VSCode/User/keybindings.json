@@ -29,10 +29,6 @@
         "command": "deleteAllLeft"
     },
     {
-        "key": "ctrl+g ctrl+oem_2",
-        "command": "redo"
-    },
-    {
         "key": "ctrl+y",
         "command": "-redo"
     },

@@ -20,5 +20,6 @@
 
 	// Unique id used for correlating crash reports sent from this instance.
 	// Do not edit this value.
-	"crash-reporter-id": "79230e1d-cede-43f0-b57a-32e283813e58"
+	"crash-reporter-id": "79230e1d-cede-43f0-b57a-32e283813e58",
+	"locale": "ja"
 }
