@@ -480,7 +480,7 @@
   (let (file-manager-open-file)
     (if (string= "windows-nt" (format "%s" system-type))
         (progn
-          (setq file-manager-open-file (read-directory-name "File manager: " default-directory))
+          (setq file-manager-open-file (expand-file-name (read-directory-name "File manager: " default-directory)))
           (with-temp-buffer
             (insert file-manager-open-file)
             (goto-char (point-min))
