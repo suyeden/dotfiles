@@ -248,6 +248,13 @@
       '(("php" . "\\.phtml\\'")
         ("blade" . "\\.blade\\.")))
 ;;
+(defvar web-mode-html-offset)
+(defvar web-mode-css-offset)
+(defvar web-mode-script-offset)
+(defvar web-mode-java-offset)
+(defvar web-mode-asp-offset)
+(defvar web-mode-enable-auto-paring)
+;;
 (defun web-mode-hook ()
   "Hooks for Web mode"
   ;; indent
@@ -340,25 +347,25 @@
 ;;            (move-to-column (+ (current-column) (/ (- my-end-point (current-column)) 2)))
 ;;          (forward-line 1)))))
 
-;;; M-n で次の括弧に飛ぶ
+;;; M-N で次の括弧に飛ぶ
 (define-key global-map "\M-N"
   '(lambda ()
     (interactive)
     (re-search-forward "[()]" nil t)))
 
-;;; M-p で前の括弧に飛ぶ
+;;; M-P で前の括弧に飛ぶ
 (define-key global-map "\M-P"
   '(lambda ()
      (interactive)
      (re-search-backward "[()]" nil t)))
 
-;;; M-N でカーソルを固定したまま画面を次ページにスクロール
+;;; M-n でカーソルを固定したまま画面を次ページにスクロール
 (define-key global-map "\M-n"
   '(lambda ()
      (interactive)
      (scroll-up 1)))
 
-;;; M-P でカーソルを固定したまま画面を前ページにスクロール
+;;; M-p でカーソルを固定したまま画面を前ページにスクロール
 (define-key global-map "\M-p"
   '(lambda ()
      (interactive)
@@ -411,6 +418,9 @@
                 (my-insert-org-template)
               nil)))
       (message "Not Org-file !"))))
+;;
+;; バイトコンパイル時の org-md-export-to-markdown に対する警告メッセージ対策
+(declare-function org-md-export-to-markdown (locate-library "ox-md.el"))
 ;;
 (defun my-org-to-md ()
   "Org ファイルを Markdown ファイルに書き出す"
@@ -493,20 +503,19 @@
       nil)))
 
 ;;; 現在のカーソル位置を保持して、再度呼ばれた時に記録したカーソル位置に戻る
-(defvar my-Emacs-record-marker nil)
+(defvar my-Emacs-record-marker)
 (define-key global-map "\C-c\C-p" 'my-Emacs-record-point)
 ;;
 (defun my-Emacs-record-point ()
   "マーカーが記録されていなければマーカーを作成し、記録されていればマーカー位置に移動してマーカーを削除する"
   (interactive)
-  (if (string= "nil" (format "%s" my-Emacs-record-marker))
+  (if (not (boundp 'my-Emacs-record-marker))
       (progn
         (setq my-Emacs-record-marker (make-marker))
         (set-marker my-Emacs-record-marker (point))
         (message "Point recorded!"))
     (goto-char (marker-position my-Emacs-record-marker))
-    (set-marker my-Emacs-record-marker nil)
-    (setq my-Emacs-record-marker nil)
+    (makunbound 'my-Emacs-record-point)
     (message "Move point!")))
 
 ;;; 記録したカーソル位置を破棄して、新しいカーソル位置を記録する
@@ -515,7 +524,7 @@
 (defun my-Emacs-force-record-point ()
   "新しいカーソル位置を強制的に記録する"
   (interactive)
-  (if (string= "nil" (format "%s" my-Emacs-record-marker))
+  (if (not (boundp 'my-Emacs-record-marker))
       (progn
         (setq my-Emacs-record-marker (make-marker))
         (set-marker my-Emacs-record-marker (point))
