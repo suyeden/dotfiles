@@ -515,7 +515,7 @@
         (set-marker my-Emacs-record-marker (point))
         (message "Point recorded!"))
     (goto-char (marker-position my-Emacs-record-marker))
-    (makunbound 'my-Emacs-record-point)
+    (makunbound 'my-Emacs-record-marker)
     (message "Move point!")))
 
 ;;; 記録したカーソル位置を破棄して、新しいカーソル位置を記録する
