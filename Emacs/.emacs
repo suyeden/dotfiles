@@ -507,35 +507,48 @@
         nil))))
 
 ;;; 現在のカーソル位置を保持して、再度呼ばれた時に記録したカーソル位置に戻る
-(defvar my-Emacs-record-marker)
-(define-key global-map "\C-c\C-p" 'my-Emacs-record-point)
+(defvar MyEmacs-RecordedPoint)
+(defvar MyEmacs-RecordedBuffername)
+(define-key global-map "\C-c\C-p" 'my-Emacs-record-current-point)
 ;;
-(defun my-Emacs-record-point ()
+(defun my-Emacs-record-current-point ()
   "マーカーが記録されていなければマーカーを作成し、記録されていればマーカー位置に移動してマーカーを削除する"
   (interactive)
-  (if (not (boundp 'my-Emacs-record-marker))
-      (progn
-        (setq my-Emacs-record-marker (make-marker))
-        (set-marker my-Emacs-record-marker (point))
-        (message "Point recorded!"))
-    (goto-char (marker-position my-Emacs-record-marker))
-    (makunbound 'my-Emacs-record-marker)
-    (message "Move point!")))
+  (if (and (boundp 'MyEmacs-RecordedPoint) (boundp 'MyEmacs-RecordedBuffername))
+      (if (string= (buffer-name (current-buffer)) MyEmacs-RecordedBuffername)
+          (progn
+            (goto-char (marker-position MyEmacs-RecordedPoint))
+            (makunbound 'MyEmacs-RecordedPoint)
+            (makunbound 'MyEmacs-RecordedBuffername)
+            (message "Moved point!"))
+        (message (format "Point has already been recorded in %s ! Switch buffer !" MyEmacs-RecordedBuffername)))
+    (if (not (boundp 'MyEmacs-RecordedPoint))
+        (setq MyEmacs-RecordedPoint (make-marker)))
+    (set-marker MyEmacs-RecordedPoint (point))
+    (setq MyEmacs-RecordedBuffername (buffer-name (current-buffer)))
+    (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername))))
 
 ;;; 記録したカーソル位置を破棄して、新しいカーソル位置を記録する
-(define-key global-map "\C-cp" 'my-Emacs-force-record-point)
+(define-key global-map "\C-cp" 'my-Emacs-force-record-current-point)
 ;;
-(defun my-Emacs-force-record-point ()
+(defun my-Emacs-force-record-current-point ()
   "新しいカーソル位置を強制的に記録する"
   (interactive)
-  (if (not (boundp 'my-Emacs-record-marker))
+  (if (and (not (boundp 'MyEmacs-RecordedPoint)) (not (boundp 'MyEmacs-RecordedBuffername)))
       (progn
-        (setq my-Emacs-record-marker (make-marker))
-        (set-marker my-Emacs-record-marker (point))
-        (message "Point recorded!"))
-    (if (y-or-n-p "Other point has already been recorded! Continue this process?")
+        (if (not (boundp 'MyEmacs-RecordedPoint))
+            (setq MyEmacs-RecordedPoint (make-marker)))
+        (set-marker MyEmacs-RecordedPoint (point))
+        (setq MyEmacs-RecordedBuffername (buffer-name (current-buffer)))
+        (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername)))
+    (if (y-or-n-p (format "Other point has already been recorded in %s ! Continue this process ?" MyEmacs-RecordedBuffername))
         (progn
-          (set-marker my-Emacs-record-marker nil)
-          (set-marker my-Emacs-record-marker (point))
-          (message "Point recorded!"))
+          (if (boundp 'MyEmacs-RecordedPoint)
+              (progn
+                (set-marker MyEmacs-RecordedPoint nil)
+                (set-marker MyEmacs-RecordedPoint (point)))
+            (setq MyEmacs-RecordedPoint (make-marker))
+            (set-marker MyEmacs-RecordedPoint (point)))
+          (setq MyEmacs-RecordedBuffername (buffer-name (current-buffer)))
+          (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername)))
       (message "Process killed"))))
