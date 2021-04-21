@@ -24,7 +24,7 @@
 (setq delete-auto-save-files t)
 
 ;;; タブにスペースを使用しない
-(setq-default tab-width 3 indent-tabs-mode nil)
+(setq-default tab-width 2 indent-tabs-mode nil)
 
 ;;; 改行コードを表示する
 (setq eol-mnemonic-dos "(CRLF)")
@@ -282,14 +282,31 @@
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
+;;; php-mode
+(require 'php-mode)
+;; (add-hook 'php-mode-user-hook
+;;           '(lambda ()
+;;              (setq tab-width 2)
+;;              (setq indent-tabs-mode nil)
+;;              (setq c-basic-offset 2)))
+
+;;; emmet-mode
+(require 'emmet-mode)
+;; web-mode と併用
+(add-hook 'web-mode-hook 'emmet-mode)
+;; CSS にも使う
+(add-hook 'css-mode-hook 'emmet-mode)
+;; インデントはスペース2個
+(add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2)))
+
 ;;; magit
 (defalias 'magit 'magit-status)
 (global-set-key "\C-xg" 'magit-status)
 
 ;;; grip-mode
-;; Python を導入済み、および pip install grip を実行済みであることを確認
-;; C-c C-g で grip-mode を起動する
-(define-key global-map "\C-c\C-g" 'grip-mode)
+;; Python(3) を導入済み、および pip(3) install grip を実行済みであることを確認
+;; C-c g で grip-mode を起動する
+(define-key global-map "\C-cg" 'grip-mode)
 
 ;;; 自作メジャーモード (自作 Emacs-Lisp ファイル) のロード
 (add-to-list 'load-path "~/.emacs.d/lisp")
