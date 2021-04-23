@@ -73,7 +73,10 @@
 
 
 ;;; カスタムファイルの指定
-(setq custom-file "~/.emacs.d/custom.elc")
+(if (string= "windows-nt" (format "%s" system-type))
+    (setq custom-file "~/.emacs.d/win-custom.el")
+  (if (string= "gnu/linux" (format "%s" system-type))
+      (setq custom-file "~/.emacs.d/lnx-custom.el")))
 (if (file-exists-p (expand-file-name custom-file))
     (load-file (expand-file-name custom-file)))
 
