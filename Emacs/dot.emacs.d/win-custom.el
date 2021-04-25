@@ -4,7 +4,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(grip-mode magit web-mode js2-mode auto-complete undo-tree dirtree ir-black-theme)))
+   '(magit grip-mode emmet-mode php-mode js2-mode web-mode ir-black-theme dirtree auto-complete undo-tree)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
