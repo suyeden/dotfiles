@@ -1,9 +1,15 @@
 ;;; dirtree-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-(add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
+
+(add-to-list 'load-path (directory-file-name
+                         (or (file-name-directory #$) (car load-path))))
+
 
-;;;### (autoloads nil nil ("dirtree.el") (24281 60671 0 0))
+;;;### (autoloads nil "dirtree" "dirtree.el" (0 0 0 0))
+;;; Generated autoloads from dirtree.el
+
+(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "dirtree" '("dirtree")))
 
 ;;;***
 
@@ -11,5 +17,6 @@
 ;; version-control: never
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
+;; coding: utf-8
 ;; End:
 ;;; dirtree-autoloads.el ends here
