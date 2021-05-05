@@ -74,7 +74,9 @@
   (if (string= "gnu/linux" (format "%s" system-type))
       (progn
         (set-face-attribute 'default t :inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 135 :width 'normal :foundry "outline" :family "Ricty Diminished")
-        (set-face-attribute 'font-lock-comment-face t :foreground "gray45"))))
+        (set-face-attribute 'font-lock-comment-face t :foreground "gray45"))
+    (set-face-attribute 'default t :inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 120 :width 'normal :foundry "outline" :family "Ricty Diminished")
+    (set-face-attribute 'font-lock-comment-face t :foreground "gray45")))
 
 
 ;;;;
