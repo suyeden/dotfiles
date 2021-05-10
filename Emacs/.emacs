@@ -544,7 +544,7 @@
 ;;; 現在のカーソル位置を保持して、再度呼ばれた時に記録したカーソル位置に戻る
 (defvar MyEmacs-RecordedPoint)
 (defvar MyEmacs-RecordedBuffername)
-(define-key global-map "\C-c\C-p" 'my-Emacs-record-current-point)
+(define-key global-map "\C-cp" 'my-Emacs-record-current-point)
 ;;
 (defun my-Emacs-record-current-point ()
   "マーカーが記録されていなければマーカーを作成し、記録されていればマーカー位置に移動してマーカーを削除する"
@@ -564,7 +564,7 @@
     (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername))))
 
 ;;; 記録したカーソル位置を破棄して、新しいカーソル位置を記録する
-(define-key global-map "\C-cp" 'my-Emacs-force-record-current-point)
+(define-key global-map "\C-c\C-p" 'my-Emacs-force-record-current-point)
 ;;
 (defun my-Emacs-force-record-current-point ()
   "新しいカーソル位置を強制的に記録する"
