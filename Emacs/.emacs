@@ -252,6 +252,8 @@
 
 ;;; web-mode
 ;;
+;; 設定については https://web-mode.org/ 参照
+;;
 (require 'web-mode)
 ;;
 (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
@@ -268,24 +270,28 @@
       '(("php" . "\\.phtml\\'")
         ("blade" . "\\.blade\\.")))
 ;;
-(defvar web-mode-html-offset)
-(defvar web-mode-css-offset)
-(defvar web-mode-script-offset)
-(defvar web-mode-java-offset)
-(defvar web-mode-asp-offset)
+;; (defvar web-mode-html-offset)
+;; (defvar web-mode-css-offset)
+;; (defvar web-mode-script-offset)
+;; (defvar web-mode-java-offset)
+;; (defvar web-mode-asp-offset)
 (defvar web-mode-enable-auto-paring)
 ;;
 (defun web-mode-hook ()
   "Hooks for Web mode"
-  ;; indent
-  (setq web-mode-html-offset 2)
-  (setq web-mode-style-padding 2)
-  (setq web-mode-css-offset 2)
-  (setq web-mode-script-offset 2)
-  (setq web-mode-java-offset 2)
-  (setq web-mode-asp-offset 2)
+  ;; ;; indent
+  ;; (setq web-mode-html-offset 2)
+  ;; (setq web-mode-style-padding 2)
+  ;; (setq web-mode-css-offset 2)
+  ;; (setq web-mode-script-offset 2)
+  ;; (setq web-mode-java-offset 2)
+  ;; (setq web-mode-asp-offset 2)
+  ;; HTML element offset indentation
   (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-code-indent-offset 2)
+  ;; CSS offset indentation
+  (setq web-mode-css-indent-offset 2)
+  ;; Script/code offset indentation
+  (setq web-mode-code-indent-offset 4)
   ;; auto tag closing
   (setq web-mode-enable-auto-paring t)
   (setq web-mode-enable-auto-closing t))
