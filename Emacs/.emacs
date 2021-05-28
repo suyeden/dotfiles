@@ -263,6 +263,7 @@
 (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
 (setq web-mode-engines-alist
       '(("php" . "\\.phtml\\'")
         ("blade" . "\\.blade\\.")))
@@ -295,13 +296,13 @@
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
-;;; php-mode
-(require 'php-mode)
-;; (add-hook 'php-mode-user-hook
-;;           '(lambda ()
-;;              (setq tab-width 2)
-;;              (setq indent-tabs-mode nil)
-;;              (setq c-basic-offset 2)))
+;; ;;; php-mode
+;; (require 'php-mode)
+;; ;; (add-hook 'php-mode-user-hook
+;; ;;           '(lambda ()
+;; ;;              (setq tab-width 2)
+;; ;;              (setq indent-tabs-mode nil)
+;; ;;              (setq c-basic-offset 2)))
 
 ;;; emmet-mode
 (require 'emmet-mode)
