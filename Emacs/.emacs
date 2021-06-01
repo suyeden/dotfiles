@@ -595,3 +595,6 @@
           (setq MyEmacs-RecordedBuffername (buffer-name (current-buffer)))
           (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername)))
       (message "Process killed"))))
+
+;;; web-mode を起動する
+(define-key global-map "\C-cw" 'web-mode)
