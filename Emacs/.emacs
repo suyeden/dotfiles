@@ -546,7 +546,7 @@
       (if (string= "gnu/linux" (format "%s" system-type))
           (progn
             (setq file-manager-open-file (expand-file-name (read-directory-name "File manager: " default-directory)))
-            (call-process-shell-command (format "exo-open --launch FileManager %s &" file-manager-open-file) nil 0))
+            (call-process-shell-command (format "pcmanfm %s" file-manager-open-file) nil 0))
         nil))))
 
 ;;; 現在のカーソル位置を保持して、再度呼ばれた時に記録したカーソル位置に戻る
