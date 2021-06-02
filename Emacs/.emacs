@@ -1,3 +1,32 @@
+;;; .emacs --- suyeden's configuration file for Emacs -*- Emacs-Lisp -*-
+
+;; Copyright (C) 2019-2021 suyeden
+
+;; Author: suyeden
+;; Keywords: internal, local
+;; Package-Requires: ((emacs "27.1"))
+
+;; This file is NOT part of GNU Emacs.
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Place this file in home directory.
+
+;;; Code:
+
 ;;; 環境を日本語, 基本 UTF-8 にする
 (set-locale-environment nil)
 (set-language-environment "Japanese")
@@ -75,6 +104,7 @@
       (progn
         (set-face-attribute 'default t :inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 135 :width 'normal :foundry "outline" :family "Ricty Diminished")
         (set-face-attribute 'font-lock-comment-face t :foreground "gray45")
+        ;; Japanese font
         (set-fontset-font t 'japanese-jisx0208 (font-spec :family "IPAExGothic")))
     (set-face-attribute 'default t :inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 120 :width 'normal :foundry "outline" :family "Ricty Diminished")
     (set-face-attribute 'font-lock-comment-face t :foreground "gray45")))
@@ -598,3 +628,4 @@
 
 ;;; web-mode を起動する
 (define-key global-map "\C-cw" 'web-mode)
+;;; .emacs ends here
