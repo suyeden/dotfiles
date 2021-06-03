@@ -244,6 +244,11 @@
 (setq org-startup-truncated nil)
 ;; org-refile の設定
 (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+;; 見出しの色の設定
+(require 'org-faces)
+(set-face-attribute 'org-level-4 nil :foreground "#99cc99")
+(set-face-attribute 'org-level-5 nil :foreground "#ffffb6")
+(set-face-attribute 'org-level-6 nil :foreground "gray45")
 ;; キーバインド
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-cc" 'org-capture)
@@ -354,7 +359,8 @@
 (global-set-key "\C-xg" 'magit-status)
 
 ;;; grip-mode
-;; Python(3) を導入済み、および pip(3) install grip を実行済みであることを確認
+;; Python(3) (および python3-pip) を導入済みであることを確認
+;; また pip(3) install grip を実行済みであることを確認
 ;; C-c g で grip-mode を起動する
 (define-key global-map "\C-cg" 'grip-mode)
 
