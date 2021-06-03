@@ -364,6 +364,11 @@
 ;; C-c g で grip-mode を起動する
 (define-key global-map "\C-cg" 'grip-mode)
 
+;;; exec-path-from-shell
+;; gnu/linux のときは PATH の設定を引き継ぐ
+(if (string= "gnu/linux" (format "%s" system-type))
+    (exec-path-from-shell-initialize))
+
 ;;; 自作メジャーモード (自作 Emacs-Lisp ファイル) のロード
 (add-to-list 'load-path "~/.emacs.d/lisp")
 ;;
