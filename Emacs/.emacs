@@ -332,6 +332,9 @@
   (setq web-mode-enable-auto-closing t))
 ;;
 (add-hook 'web-mode-hook 'web-mode-hook)
+;;
+;; キーバインド
+(define-key global-map "\C-cw" 'web-mode)
 
 ;;; js2-mode
 (require 'js2-mode)
@@ -636,7 +639,4 @@
           (setq MyEmacs-RecordedBuffername (buffer-name (current-buffer)))
           (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername)))
       (message "Process killed"))))
-
-;;; web-mode を起動する
-(define-key global-map "\C-cw" 'web-mode)
 ;;; .emacs ends here
