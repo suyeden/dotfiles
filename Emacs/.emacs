@@ -593,9 +593,11 @@
             (call-process-shell-command (format "pcmanfm %s" file-manager-open-file) nil 0))
         nil))))
 
-;;; 現在のカーソル位置を保持して、再度呼ばれた時に記録したカーソル位置に戻る
+;;; ブックマーク機能
 (defvar MyEmacs-RecordedPoint)
 (defvar MyEmacs-RecordedBuffername)
+;;
+;; 現在のカーソル位置を保持して、再度呼ばれた時に記録したカーソル位置に戻る
 (define-key global-map "\C-cp" 'my-Emacs-record-current-point)
 ;;
 (defun my-Emacs-record-current-point ()
@@ -614,9 +616,9 @@
     (set-marker MyEmacs-RecordedPoint (point))
     (setq MyEmacs-RecordedBuffername (buffer-name (current-buffer)))
     (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername))))
-
-;;; 記録したカーソル位置を破棄して、新しいカーソル位置を記録する
-(define-key global-map "\C-c\C-p" 'my-Emacs-force-record-current-point)
+;;
+;; 記録したカーソル位置を破棄して、新しいカーソル位置を記録する
+(define-key global-map "\C-c\M-p" 'my-Emacs-force-record-current-point)
 ;;
 (defun my-Emacs-force-record-current-point ()
   "新しいカーソル位置を強制的に記録する"
