@@ -376,7 +376,7 @@
 (add-to-list 'load-path "~/.emacs.d/lisp")
 ;;
 ;; blog-mode の読み込み
-(load-library "blog-mode.elc")
+(load-library "blog-mode.el")
 
 
 ;;;;
@@ -511,55 +511,63 @@
 ;;
 (defun my-org-to-md ()
   "Org ファイルを Markdown ファイルに書き出す"
-  (let (my-file-name my-lang-name my-src-begin my-src-end)
+  (let (my-file-name my-lang-name my-src-begin my-line-count)
     (save-excursion
-      (goto-char (point-min))
       (org-md-export-to-markdown)
-      (setq my-file-name (format "%s" (buffer-name)))
-      (with-temp-buffer
-        (insert my-file-name)
-        (goto-char (point-min))
-        (re-search-forward "\\(.+\\)\\.org" nil t)
-        (setq my-file-name (buffer-substring (match-beginning 1) (match-end 1)))) ; with-temp-buffer
+      ;; ファイル名の記録
+      (setq my-file-name (file-name-sans-extension (file-name-nondirectory (buffer-file-name))))
+      ;; バッジ部分の修正
       (find-file (format "%s.md" my-file-name))
       (goto-char (point-min))
-      (while (re-search-forward "\\[\\\\!" nil t)
-        (forward-char -1)
-        (delete-char -1))
-      (goto-char (point-min))
+      (save-excursion
+        (while (re-search-forward "\\[\\\\!" nil t)
+          (forward-char -1)
+          (delete-char -1)))
+      ;; コードブロック部分の修正
       (switch-to-buffer (format "%s.org" my-file-name))
-      (while (re-search-forward "+begin_src" nil t)
-        (skip-chars-forward " ")
-        (setq my-lang-name (buffer-substring (point) (progn (end-of-line) (point))))
-        (forward-line)
-        (skip-chars-forward " ")
-        (setq my-src-begin (buffer-substring (point) (progn (end-of-line) (point))))
-        (re-search-forward "+end_src" nil t)
-        (forward-line -1)
-        (skip-chars-forward " ")
-        (setq my-src-end (buffer-substring (point) (progn (end-of-line) (point))))
-        (switch-to-buffer (format "%s.md" my-file-name))
-        (re-search-forward (format "%s" my-src-begin) nil t)
-        (beginning-of-line)
-        (skip-chars-forward " ")
-        (delete-region (point) (progn (beginning-of-line) (point)))
-        (insert (format "```%s\n" my-lang-name))
-        (forward-line)
-        (catch 'foo
-          (while t
+      (goto-char (point-min))
+      (let ((current-line-count 0))
+        (while (search-forward "+begin_src" nil t)
+          (setq my-line-count 0)
+          (setq current-line-count 0)
+          ;; 使用言語の記録
+          (skip-chars-forward " ")
+          (setq my-lang-name (buffer-substring (point) (progn (end-of-line) (point))))
+          ;; コードブロックの始まりを記録
+          (forward-line 1)
+          (skip-chars-forward " ")
+          (setq my-src-begin (buffer-substring (point) (progn (end-of-line) (point))))
+          (save-excursion
+            (setq current-line-count 1)
+            (while (not (= (point) (point-min)))
+              (forward-line -1)
+              (setq current-line-count (1+ current-line-count))))
+          (setq my-line-count current-line-count)
+          ;; 終了までの行数を数える
+          (search-forward "+end_src" nil t)
+          (forward-line -1)
+          (save-excursion
+            (setq current-line-count 1)
+            (while (not (= (point) (point-min)))
+              (forward-line -1)
+              (setq current-line-count (1+ current-line-count))))
+          (setq my-line-count (- current-line-count my-line-count))
+          ;; md ファイル編集
+          (switch-to-buffer (format "%s.md" my-file-name))
+          (search-forward my-src-begin)
+          (beginning-of-line)
+          (insert (format "```%s\n" my-lang-name))
+          (while (<= 0 my-line-count)
             (skip-chars-forward " ")
             (delete-region (point) (progn (beginning-of-line) (point)))
-            (if (string= (format "%s" my-src-end) (buffer-substring (point) (progn (end-of-line) (point))))
-                (progn
-                  (end-of-line)
-                  (insert "\n```")
-                  (throw 'foo t))
-              (forward-line)))) ; catch
-        (switch-to-buffer (format "%s.org" my-file-name))) ; while
+            (forward-line 1)
+            (setq my-line-count (1- my-line-count)))
+          (insert "```\n")
+          (save-buffer)
+          (switch-to-buffer (format "%s.org" my-file-name))))
       (switch-to-buffer (format "%s.md" my-file-name))
       (save-buffer)
       (kill-buffer (format "%s.md" my-file-name))
-      (switch-to-buffer (format "%s.org" my-file-name))
       (message "Done!"))))
 ;;
 (defun my-insert-org-template ()
@@ -641,4 +649,20 @@
           (setq MyEmacs-RecordedBuffername (buffer-name (current-buffer)))
           (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername)))
       (message "Process killed"))))
+
+(defun em ()
+  "指定された Emacs Lisp スクリプトを実行する関数"
+  (interactive)
+  (let ((em-filename nil))
+    (while (string= "nil" (format "%s" em-filename))
+      (setq em-filename (read-file-name "Script name ? : "))
+      (if (file-exists-p em-filename)
+          (with-temp-buffer
+            (insert em-filename)
+            (unless (re-search-backward "[.]el$" nil t)
+              (setq em-filename nil)))
+        (setq em-filename nil)))
+    (with-temp-buffer
+      (insert-file-contents em-filename)
+      (eval-buffer))))
 ;;; .emacs ends here
