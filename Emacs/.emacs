@@ -1,6 +1,6 @@
 ;;; .emacs --- suyeden's configuration file for Emacs -*- Emacs-Lisp -*-
 
-;; Copyright (C) 2019-2021 suyeden
+;; Copyright (C) 2019-2024 suyeden
 
 ;; Author: suyeden
 ;; Keywords: internal, local
@@ -95,19 +95,24 @@
 ;;; 括弧の自動補完
 (electric-pair-mode 1)
 
+;;; 行番号を左端に表示
+(global-display-line-numbers-mode)
+
+;; ;;; 現在行ハイライト
+;; (global-hl-line-mode)
+
+;; ;;; カーソルの形
+;; (add-to-list 'default-frame-alist '(cursor-type . bar))
+
 ;;; face の設定
 (if (string= "windows-nt" (format "%s" system-type))
-    (progn
-      (set-face-attribute 'default t :inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 120 :width 'normal :foundry "outline" :family "Ricty Diminished")
-      (set-face-attribute 'font-lock-comment-face t :foreground "gray45"))
+    (set-face-attribute 'default t :inherit nil :stipple nil :background "#1e1e1e" :foreground "#d4d4d4" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 120 :width 'normal :foundry "outline" :family "Ricty Diminished")
   (if (string= "gnu/linux" (format "%s" system-type))
       (progn
-        (set-face-attribute 'default t :inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 135 :width 'normal :foundry "outline" :family "Ricty Diminished")
-        (set-face-attribute 'font-lock-comment-face t :foreground "gray45")
+        (set-face-attribute 'default t :inherit nil :stipple nil :background "#1e1e1e" :foreground "#d4d4d4" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 135 :width 'normal :foundry "outline" :family "Ricty Diminished")
         ;; Japanese font
         (set-fontset-font t 'japanese-jisx0208 (font-spec :family "IPAExGothic")))
-    (set-face-attribute 'default t :inherit nil :stipple nil :background "gray12" :foreground "#F6F3E8" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 120 :width 'normal :foundry "outline" :family "Ricty Diminished")
-    (set-face-attribute 'font-lock-comment-face t :foreground "gray45")))
+    (set-face-attribute 'default t :inherit nil :stipple nil :background "#1e1e1e" :foreground "#d4d4d4" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant 'normal :weight 'normal :height 120 :width 'normal :foundry "outline" :family "Ricty Diminished")))
 
 
 ;;;;
@@ -143,7 +148,7 @@
 (package-initialize)
 
 ;;; カラーテーマの変更
-(load-theme 'ir-black t)
+(load-theme 'vscode-dark-plus t)
 
 ;;; dired 設定
 (require 'dired-x)
