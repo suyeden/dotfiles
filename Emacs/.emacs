@@ -655,19 +655,22 @@
           (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername)))
       (message "Process killed"))))
 
-(defun em ()
-  "指定された Emacs Lisp スクリプトを実行する関数"
+;;; 重複行の削除（マージ）
+(define-key global-map "\C-c\M-m" 'my-Emacs-merge-lines)
+;;
+(defun my-Emacs-merge-lines ()
+  "カーソル行以降の重複行を削除する"
   (interactive)
-  (let ((em-filename nil))
-    (while (string= "nil" (format "%s" em-filename))
-      (setq em-filename (read-file-name "Script name ? : "))
-      (if (file-exists-p em-filename)
-          (with-temp-buffer
-            (insert em-filename)
-            (unless (re-search-backward "[.]el$" nil t)
-              (setq em-filename nil)))
-        (setq em-filename nil)))
-    (with-temp-buffer
-      (insert-file-contents em-filename)
-      (eval-buffer))))
+  (let (line-content (del-count 0))
+    (save-excursion
+      (beginning-of-line)
+      (while (not (= (point) (point-max)))
+        (setq line-content (buffer-substring (point) (progn (end-of-line) (point))))
+        (save-excursion
+          (while (search-forward line-content nil t)
+            (beginning-of-line)
+            (delete-region (point) (progn (forward-line 1) (point)))
+            (setq del-count (1+ del-count))))
+        (forward-line 1)))
+    (message "%s lines merged !" del-count)))
 ;;; .emacs ends here
