@@ -4,7 +4,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(vscode-dark-plus-theme exec-path-from-shell magit grip-mode emmet-mode js2-mode web-mode dirtree auto-complete undo-tree)))
+   '(vscode-dark-plus-theme exec-path-from-shell grip-mode auto-complete undo-tree)))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
