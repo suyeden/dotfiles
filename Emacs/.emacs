@@ -235,7 +235,7 @@
 (when (string= "gnu/linux" (format "%s" system-type))
   (exec-path-from-shell-initialize))
 
-;;; 自作メジャーモード (自作 Emacs-Lisp ファイル) のロード
+;;; 自作メジャーモードのロード
 (add-to-list 'load-path "~/.emacs.d/lisp")
 ;;
 ;; blog-mode の読み込み
@@ -250,6 +250,7 @@
 ;;; C-k で行のカーソル以降を削除する
 (define-key global-map "\C-k"
   '(lambda ()
+     "カーソル位置から行末まで削除"
      (interactive)
      (if (= (point) (save-excursion (end-of-line) (point)))
          (delete-char 1)
@@ -258,6 +259,7 @@
 ;;; C-c k で行のカーソル以降をkillする
 (define-key global-map "\C-ck"
   '(lambda ()
+     "カーソル位置から行末まで切り取り"
      (interactive)
      (kill-region (point) (progn (end-of-line) (point)))))
 
@@ -270,26 +272,30 @@
 ;;; C-c d でカーソル位置から行頭まで削除する
 (define-key global-map "\C-cd"
   '(lambda ()
+     "カーソル位置から行頭まで削除"
      (interactive)
      (delete-region (point) (progn (beginning-of-line) (point)))))
 
 ;;; M-n でカーソルを固定したまま画面を次ページにスクロール
 (define-key global-map "\M-n"
   '(lambda ()
+     "カーソル位置固定で1行下にスクロール"
      (interactive)
      (scroll-up 1)))
 
 ;;; M-p でカーソルを固定したまま画面を前ページにスクロール
 (define-key global-map "\M-p"
   '(lambda ()
+     "カーソル位置固定で1行上にスクロール"
      (interactive)
      (scroll-down 1)))
 
 ;;; Org ファイルを開いている時 C-x x で諸機能を提供
 (define-key global-map "\C-xx"
   '(lambda ()
-     ;; x : Markdown に書き出して整形
-     ;; t : Org ファイルのひな形を作成
+     "Org ファイル編集機能
+x : Markdown に書き出して整形
+t : Org ファイルのひな形を作成"
      (interactive)
      (let (my-org-option-mode)
        (if (string-match ".+\\.org" (format "%s" (buffer-name)))
@@ -380,19 +386,14 @@
 ;;; ファイルマネージャを起動する
 (define-key global-map "\C-cf"
   '(lambda ()
+     "ファイルマネージャ起動"
      (interactive)
      (let (file-manager-open-file)
        (if (string= "windows-nt" (format "%s" system-type))
            (progn
              (setq file-manager-open-file (expand-file-name (read-directory-name "File manager: " default-directory)))
-             (with-temp-buffer
-               (insert file-manager-open-file)
-               (goto-char (point-min))
-               (while (re-search-forward "/" nil t)
-                 (delete-char -1)
-                 (insert "\\"))
-               (goto-char (point-min))
-               (setq file-manager-open-file (buffer-substring-no-properties (point) (progn (end-of-line) (point)))))
+             (while (string-match "/" file-manager-open-file)
+               (setq file-manager-open-file (replace-match "\\\\" nil nil file-manager-open-file)))
              (shell-command-to-string (format "explorer %s" file-manager-open-file)))
          (if (string= "gnu/linux" (format "%s" system-type))
              (progn
@@ -407,6 +408,7 @@
 ;; 現在のカーソル位置を保持して、再度呼ばれた時に記録したカーソル位置に戻る
 (define-key global-map "\C-cp"
   '(lambda ()
+     "カーソル位置の保存、または保存位置へのジャンプ"
      (interactive)
      (if (and (boundp 'MyEmacs-RecordedPoint) (boundp 'MyEmacs-RecordedBuffername))
          (if (string= (buffer-name (current-buffer)) MyEmacs-RecordedBuffername)
@@ -425,6 +427,7 @@
 ;; 記録したカーソル位置を破棄して、新しいカーソル位置を記録する
 (define-key global-map "\C-c\M-p"
   '(lambda ()
+     "保存したカーソル位置の破棄、および新たなカーソル位置の保存"
      (interactive)
      (if (and (not (boundp 'MyEmacs-RecordedPoint)) (not (boundp 'MyEmacs-RecordedBuffername)))
          (progn
@@ -445,20 +448,45 @@
              (message (format "Point recorded in %s !" MyEmacs-RecordedBuffername)))
          (message "Process killed")))))
 
-;;; 重複行の削除（マージ）
+;;; 重複行のマージ
 (define-key global-map "\C-c\M-m"
   '(lambda ()
+     "重複行のマージ
+範囲選択している場合、選択範囲の開始行から終了行までを対象に重複行マージ
+上記以外の場合、カーソル行以降を対象に重複行マージ"
      (interactive)
-     (let (line-content (del-count 0))
+     (let (line-content (del-count 0) start-point end-point)
        (save-excursion
-         (beginning-of-line)
-         (while (not (= (point) (point-max)))
-           (setq line-content (buffer-substring (point) (progn (end-of-line) (point))))
-           (save-excursion
-             (while (search-forward line-content nil t)
+         (if (use-region-p)
+             ;; 範囲選択している場合、選択範囲の開始行から終了行までを対象に重複行マージ
+             (save-restriction
+               (setq start-point (region-beginning))
+               (setq end-point (region-end))
+               (goto-char start-point)
                (beginning-of-line)
-               (delete-region (point) (progn (forward-line 1) (point)))
-               (setq del-count (1+ del-count))))
-           (forward-line 1)))
+               (setq start-point (point))
+               (goto-char end-point)
+               (forward-line 1)
+               (setq end-point (point))
+               (narrow-to-region start-point end-point)
+               (goto-char (point-min))
+               (while (not (= (point) (point-max)))
+                 (setq line-content (buffer-substring (point) (progn (end-of-line) (point))))
+                 (save-excursion
+                   (while (search-forward line-content nil t)
+                     (beginning-of-line)
+                     (delete-region (point) (progn (forward-line 1) (point)))
+                     (setq del-count (1+ del-count))))
+                 (forward-line 1)))
+           ;; 上記以外の場合、カーソル行以降を対象に重複行マージ
+           (beginning-of-line)
+           (while (not (= (point) (point-max)))
+             (setq line-content (buffer-substring (point) (progn (end-of-line) (point))))
+             (save-excursion
+               (while (search-forward line-content nil t)
+                 (beginning-of-line)
+                 (delete-region (point) (progn (forward-line 1) (point)))
+                 (setq del-count (1+ del-count))))
+             (forward-line 1))))
        (message "%s lines merged !" del-count))))
 ;;; .emacs ends here
