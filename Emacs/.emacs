@@ -114,9 +114,9 @@
 
 
 ;;; カスタムファイルの指定
-(let ((custom-file "~/.emacs.d/custom.el"))
-  (when (file-exists-p (expand-file-name custom-file))
-    (load-file (expand-file-name custom-file))))
+(setq custom-file "~/.emacs.d/custom.el")
+(when (file-exists-p (expand-file-name custom-file))
+  (load-file (expand-file-name custom-file)))
 
 ;;; package.el の有効化, パッケージ読み込み
 ;;
@@ -473,7 +473,7 @@ t : Org ファイルのひな形を作成"
                (while (not (= (point) (point-max)))
                  (setq line-content (buffer-substring (point) (progn (end-of-line) (point))))
                  (save-excursion
-                   (while (search-forward line-content nil t)
+                   (while (re-search-forward (format "^%s$" line-content) nil t)
                      (beginning-of-line)
                      (delete-region (point) (progn (forward-line 1) (point)))
                      (setq del-count (1+ del-count))))
@@ -483,7 +483,7 @@ t : Org ファイルのひな形を作成"
            (while (not (= (point) (point-max)))
              (setq line-content (buffer-substring (point) (progn (end-of-line) (point))))
              (save-excursion
-               (while (search-forward line-content nil t)
+               (while (re-search-forward (format "^%s$" line-content) nil t)
                  (beginning-of-line)
                  (delete-region (point) (progn (forward-line 1) (point)))
                  (setq del-count (1+ del-count))))
