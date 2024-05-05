@@ -489,4 +489,15 @@ t : Org ファイルのひな形を作成"
                  (setq del-count (1+ del-count))))
              (forward-line 1))))
        (message "%s lines merged !" del-count))))
+
+;;; パス区切り文字の変換
+(define-key global-map "\C-c\M-d"
+  '(lambda ()
+     "渡されたパスをWindows表記からUnix系表記に変換
+パス区切り文字をバックスラッシュからスラッシュに変換する"
+     (interactive)
+     (let (path)
+       (setq path (expand-file-name (read-string "path? : ")))
+       (kill-new path)
+       (message "\"%s\" has been copied to the clipboard !" path))))
 ;;; .emacs ends here
