@@ -240,7 +240,8 @@
 ;;
 ;; blog-mode の読み込み
 (load-library "blog-mode.el")
-
+;; C-c b で blog-mode を開始する
+(define-key global-map "\C-cb" 'blog-start)
 
 ;;;;
 ;;;; key-bindings
