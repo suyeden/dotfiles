@@ -12,6 +12,7 @@
 !elpa/
 !public_repos/
 elpa/*
+elpa/archives
 public_repos/*
 !elpa/.gitkeep
 !public_repos/.gitkeep
