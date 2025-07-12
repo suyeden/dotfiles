@@ -1,0 +1,16 @@
+alefragnani.bookmarks
+bierner.markdown-preview-github-styles
+christian-kohler.npm-intellisense
+christian-kohler.path-intellisense
+dbaeumer.vscode-eslint
+eamodio.gitlens
+esbenp.prettier-vscode
+foam.foam-vscode
+howardzuo.vscode-favorites
+ms-ceintl.vscode-language-pack-ja
+pkief.material-icon-theme
+steoates.autoimport
+tomsaunders.vscode-workspace-explorer
+tuttieee.emacs-mcx
+usernamehw.errorlens
+vue.volar

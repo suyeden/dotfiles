@@ -1,45 +1,13 @@
-// 既定値を上書きするには、このファイル内にキー バインドを挿入しますauto[]
+// 既定値を上書きするには、このファイル内にキー バインドを挿入します
 [
     {
-        "key": "ctrl+shift+alt+k",
-        "command": "editor.action.deleteLines",
-        "when": "textInputFocus && !editorReadonly"
+        "key": "ctrl+h",
+        "command": "deleteLeft",
+        "when": "textInputFocus"
     },
     {
-        "key": "ctrl+shift+k",
-        "command": "-editor.action.deleteLines",
-        "when": "textInputFocus && !editorReadonly"
-    },
-    {
-        "key": "ctrl+shift+k",
-        "command": "emacs-mcx.killLine",
-        "when": "editorTextFocus && !editorReadonly"
-    },
-    {
-        "key": "ctrl+k",
-        "command": "-emacs-mcx.killLine",
-        "when": "editorTextFocus && !editorReadonly"
-    },
-    {
-        "key": "ctrl+k",
-        "command": "deleteAllRight"
-    },
-    {
-        "key": "ctrl+c d",
-        "command": "deleteAllLeft"
-    },
-    {
-        "key": "ctrl+y",
-        "command": "-redo"
-    },
-    {
-        "key": "alt+oem_plus",
-        "command": "editor.action.blockComment",
-        "when": "editorTextFocus && !config.emacs-mcx.useMetaPrefixMacCmd && !editorReadonly"
-    },
-    {
-        "key": "alt+oem_1",
-        "command": "-editor.action.blockComment",
-        "when": "editorTextFocus && !config.emacs-mcx.useMetaPrefixMacCmd && !editorReadonly"
+        "key": "ctrl+x shift+/",
+        "command": "editor.action.showHover",
+        "when": "editorTextFocus"
     }
 ]
