@@ -1,0 +1,14 @@
+{
+    "git.openRepositoryInParentFolders": "always",
+    "workbench.startupEditor": "none",
+    "workbench.iconTheme": "material-icon-theme",
+    "editor.renderWhitespace": "all",
+
+    "python.defaultInterpreterPath": "python",
+    "python.linting.enabled": false,
+
+    "ruff.enable": true,
+    "ruff.format.enable": true,
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+}
