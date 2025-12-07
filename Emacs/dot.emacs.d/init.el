@@ -27,82 +27,142 @@
 
 ;;; Code:
 
-;;; 環境を日本語, 基本 UTF-8 にする
-(set-locale-environment nil)
+;;; 基本設定
+
 (set-language-environment "Japanese")
 (prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-default 'buffer-file-coding-system 'utf-8)
-(setq default-buffer-file-coding-system 'utf-8)
-(if (equal 'windows-nt system-type)
-    (progn
-      (set-file-name-coding-system 'cp932)
-      (set-terminal-coding-system 'cp932)
-      (set-keyboard-coding-system 'cp932))
-  (set-file-name-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8))
 
-;;; スタートアップメッセージを表示させない
-(setq inhibit-startup-message t)
+(setq custom-file (locate-user-emacs-file "custom.el"))
+(load custom-file t)
 
-;;; バックアップファイルを作成させない
-(setq make-backup-files nil)
+(setq inhibit-startup-message t
+      make-backup-files nil
+      delete-auto-save-files t
+      tab-width 2
+      indent-tabs-mode nil
+      scroll-conservatively 35
+      scroll-step 1
+      ring-bell-function 'ignore
+      eol-mnemonic-dos "(CRLF)"
+      eol-mnemonic-mac "(CR)"
+      eol-mnemonic-unix "(LF)")
 
-;;; 終了時にオートセーブファイルを削除する
-(setq delete-auto-save-files t)
+(defalias 'yes-or-no-p 'y-or-n-p)
 
-;;; タブにスペースを使用しない
-(setq-default tab-width 2 indent-tabs-mode nil)
+;;; UI 設定
 
-;;; 改行コードの表示方法
-(setq eol-mnemonic-dos "(CRLF)")
-(setq eol-mnemonic-mac "(CR)")
-(setq eol-mnemonic-unix "(LF)")
-
-;;; メニューバーを消す
-(menu-bar-mode -1)
-
-;;; ツールバーを消す
-(tool-bar-mode -1)
-
-;;; カーソルの点滅をやめる
-(blink-cursor-mode 0)
-
-;;; 対応する括弧を光らせる
+(delete-selection-mode 1)
 (show-paren-mode 1)
-
-;;; 列数を表示する
-(column-number-mode t)
-
-;;; スクロールは1行ごとに
-(setq scroll-conservatively 35
-      scroll-margin 0
-      scroll-step 1)
-
-;;; "yes or no" の選択を "y or n" にする
-(fset 'yes-or-no-p 'y-or-n-p)
-
-;;; beep音を消す
-(setq ring-bell-function 'ignore)
-
-;;; 括弧の自動補完
+(column-number-mode 1)
 (electric-pair-mode 1)
+(global-display-line-numbers-mode 1)
 
-;;; 行番号を左端に表示
-(global-display-line-numbers-mode)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(blink-cursor-mode -1)
 
-;;; フォント
-(if (equal 'windows-nt system-type)
-    (add-to-list 'default-frame-alist '(font . "Consolas 11"))
-  (add-to-list 'default-frame-alist '(font . "Cica")))
+;;; フォント設定
 
-;;; カラーテーマ
+(add-to-list 'default-frame-alist
+             (cons 'font
+                   (if (eq system-type 'windows-nt)
+                       "Consolas 11"
+                     "Cica 12")))
+
+;;; テーマ
+
 (load-theme 'deeper-blue t)
 
-;;; redo
-(global-set-key (kbd "C-S-z") #'undo-redo)
+;;; 自作関数（コマンド）
 
-;;; 重複行のマージ
-(define-key global-map "\C-cm" 'delete-duplicate-lines)
+(defun my-kill-emacs ()
+  "Confirm before exiting Emacs."
+  (interactive)
+  (if (y-or-n-p "Kill Emacs?")
+      (save-buffers-kill-terminal)
+    (message "")))
+
+(defun my-zettelhub-open-index ()
+  "Open the main Zettelhub index.org."
+  (interactive)
+  (find-file my-zettelhub-index-file))
+
+;;; 自作関数（設定・hook・advice 用）
+
+(defun config-dired-setup ()
+  "Custom keybindings for `dired-mode'."
+  (define-key dired-mode-map (kbd "C-t") #'other-window))
+
+(defun config-org-capture-finalize (old-func &rest args)
+  "After org-capture-finalize, kill the buffer associated with the last captured entry."
+  (apply old-func args)
+  (when (ignore-errors (org-capture-goto-last-stored) t)
+    (kill-buffer (current-buffer)))
+  (message ""))
+
+;;; キーバインド
+
+(global-set-key (kbd "C-t") #'other-window)
+(global-set-key (kbd "C-z") #'undo-only)
+(global-set-key (kbd "C-S-z") #'undo-redo)
+(global-set-key (kbd "C-c m") #'delete-duplicate-lines)
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c c") #'org-capture)
+(global-set-key (kbd "M-n") #'scroll-up-line)
+(global-set-key (kbd "M-p") #'scroll-down-line)
+(global-set-key (kbd "M-[") #'backward-list)
+(global-set-key (kbd "M-]") #'forward-list)
+(global-set-key (kbd "C-x C-c") #'my-kill-emacs)
+(global-set-key (kbd "C-c z") #'my-zettelhub-open-index)
+
+;;; dired
+
+(setq dired-kill-when-opening-new-dired-buffer t)
+
+(add-hook 'dired-mode-hook #'config-dired-setup)
+
+;;; org-mode
+
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+
+(setq org-directory "~/org"
+      org-hide-leading-stars t
+      org-startup-indented t
+      org-startup-folded 'showall
+      org-startup-with-inline-images t
+      org-startup-truncated nil
+      org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)")))
+
+(with-eval-after-load 'org
+  (setcdr (assoc 'file org-link-frame-setup) 'find-file))
+
+(setq org-capture-templates
+      `(("n" "Note" entry
+         (file ,(expand-file-name "notes.org" org-directory))
+         "* %?" :empty-lines 1 :kill-buffer 1)
+
+        ("N" "Check Notes" plain
+         (file ,(expand-file-name "notes.org" org-directory))
+         nil :unnarrowed 1 :kill-buffer 1)
+
+        ("t" "Task" entry
+         (file+datetree ,(expand-file-name "tasks.org" org-directory))
+         "* TODO %? %T" :kill-buffer 1)
+
+        ("T" "Check Tasks" plain
+         (file+datetree ,(expand-file-name "tasks.org" org-directory))
+         nil :unnarrowed 1 :kill-buffer 1)))
+
+(advice-add 'org-capture-finalize :around #'config-org-capture-finalize)
+
+;;; zettelhub
+
+(defvar my-zettelhub-directory
+  (expand-file-name "zettelhub" org-directory)
+  "Directory for Zettelhub notes.")
+
+(defvar my-zettelhub-index-file
+  (expand-file-name "index.org" my-zettelhub-directory)
+  "Main index file for Zettelhub.")
+
 ;;; init.el ends here
