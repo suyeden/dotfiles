@@ -27,14 +27,73 @@
 
 ;;; Code:
 
+;;; package
+
+(require 'package)
+
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(add-to-list 'package-archives '("ELPA" . "http://tromey.com/elpa/") t)
+
+(package-initialize)
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;;; use-package
+
+(require 'use-package)
+
+(setq use-package-always-ensure t)
+
+;;; 外部パッケージ
+
+;; undo-tree
+(use-package undo-tree
+  :config
+  (global-undo-tree-mode 1)
+  (setq undo-tree-auto-save-history nil))
+
+;; exec-path-from-shell
+(use-package exec-path-from-shell
+  :if (eq system-type 'gnu/linux)
+  :config
+  (exec-path-from-shell-initialize))
+
+;; which-key
+(use-package which-key
+  :config
+  (which-key-mode 1))
+
+;; magit
+(use-package magit)
+
+;; git-gutter
+(use-package git-gutter
+  :config
+  (global-git-gutter-mode 1))
+
+;; projectile
+(use-package projectile
+  :config
+  (projectile-mode 1))
+
+;; markdown-mode
+(use-package markdown-mode
+  :mode
+  ("\\.md\\'" . gfm-mode))
+
 ;;; 基本設定
 
+;; 言語・文字コード
 (set-language-environment "Japanese")
 (prefer-coding-system 'utf-8)
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file t)
 
+;; 一般挙動
 (setq inhibit-startup-message t
       make-backup-files nil
       delete-auto-save-files t
@@ -49,6 +108,11 @@
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+;; カーソル移動・履歴
+(setq set-mark-command-repeat-pop t
+      mark-ring-max 32
+      global-mark-ring-max 64)
+
 ;;; UI 設定
 
 (delete-selection-mode 1)
@@ -56,6 +120,8 @@
 (column-number-mode 1)
 (electric-pair-mode 1)
 (global-display-line-numbers-mode 1)
+(tab-bar-mode 1)
+(global-tab-line-mode 1)
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
@@ -103,16 +169,20 @@
 ;;; キーバインド
 
 (global-set-key (kbd "C-t") #'other-window)
-(global-set-key (kbd "C-z") #'undo-only)
-(global-set-key (kbd "C-S-z") #'undo-redo)
-(global-set-key (kbd "C-c m") #'delete-duplicate-lines)
-(global-set-key (kbd "C-c l") #'org-store-link)
-(global-set-key (kbd "C-c c") #'org-capture)
+(global-set-key (kbd "C-z") #'undo-tree-undo)
+(global-set-key (kbd "C-S-z") #'undo-tree-redo)
+(global-set-key (kbd "C-_") #'undo-tree-undo)
+(global-set-key (kbd "M-_") #'undo-tree-redo)
 (global-set-key (kbd "M-n") #'scroll-up-line)
 (global-set-key (kbd "M-p") #'scroll-down-line)
-(global-set-key (kbd "M-[") #'backward-list)
 (global-set-key (kbd "M-]") #'forward-list)
+(global-set-key (kbd "M-[") #'backward-list)
+(global-set-key (kbd "C-x g") #'magit-status)
+(global-set-key (kbd "C-x C-<down>") #'bury-buffer)
 (global-set-key (kbd "C-x C-c") #'my-kill-emacs)
+(global-set-key (kbd "C-c m") #'delete-duplicate-lines)
+(global-set-key (kbd "C-c c") #'org-capture)
+(global-set-key (kbd "C-c l") #'org-store-link)
 (global-set-key (kbd "C-c z") #'my-zettelhub-open-index)
 
 ;;; dired
@@ -122,8 +192,6 @@
 (add-hook 'dired-mode-hook #'config-dired-setup)
 
 ;;; org-mode
-
-(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 
 (setq org-directory "~/org"
       org-hide-leading-stars t
@@ -146,11 +214,11 @@
          nil :unnarrowed 1 :kill-buffer 1)
 
         ("t" "Task" entry
-         (file+datetree ,(expand-file-name "tasks.org" org-directory))
-         "* TODO %? %T" :kill-buffer 1)
+         (file ,(expand-file-name "tasks.org" org-directory))
+         "* TODO %?" :kill-buffer 1)
 
         ("T" "Check Tasks" plain
-         (file+datetree ,(expand-file-name "tasks.org" org-directory))
+         (file ,(expand-file-name "tasks.org" org-directory))
          nil :unnarrowed 1 :kill-buffer 1)))
 
 (advice-add 'org-capture-finalize :around #'config-org-capture-finalize)
