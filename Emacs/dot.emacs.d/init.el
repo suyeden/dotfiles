@@ -1,10 +1,10 @@
 ;;; init.el --- suyeden's configuration file for Emacs -*- Emacs-Lisp -*-
 
-;; Copyright (C) 2019-2025 suyeden
+;; Copyright (C) 2019-2026 suyeden
 
 ;; Author: suyeden
 ;; Keywords: internal, local
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "30.2"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -31,12 +31,9 @@
 
 (require 'package)
 
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
-(add-to-list 'package-archives '("ELPA" . "http://tromey.com/elpa/") t)
-
-(package-initialize)
+(setq package-archives
+      '(("gnu"   . "https://elpa.gnu.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")))
 
 (unless package-archive-contents
   (package-refresh-contents))
@@ -77,9 +74,36 @@
 ;; projectile
 (use-package projectile
   :config
-  (projectile-mode 1))
+  (projectile-mode 1)
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
 
-;; markdown-mode
+;; complement
+(use-package corfu
+  :init
+  (setq corfu-auto t
+        corfu-cycle t)
+  :config
+  (global-corfu-mode))
+
+;; LSP
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook ((ruby-mode . lsp-deferred))
+  :config
+  (setq lsp-prefer-flymake t
+	lsp-ruby-server 'solargraph))
+
+;; Ruby
+(use-package inf-ruby
+  :hook
+  (ruby-mode . inf-ruby-minor-mode))
+
+;; Web templates
+(use-package web-mode
+  :mode ("\\.erb\\'" . web-mode))
+
+;; Markdown
 (use-package markdown-mode
   :mode
   ("\\.md\\'" . gfm-mode))
@@ -95,16 +119,18 @@
 
 ;; 一般挙動
 (setq inhibit-startup-message t
+      vc-follow-symlinks t
       make-backup-files nil
       delete-auto-save-files t
       tab-width 2
-      indent-tabs-mode nil
       scroll-conservatively 35
       scroll-step 1
       ring-bell-function 'ignore
       eol-mnemonic-dos "(CRLF)"
       eol-mnemonic-mac "(CR)"
       eol-mnemonic-unix "(LF)")
+
+(setq-default indent-tabs-mode nil)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 
