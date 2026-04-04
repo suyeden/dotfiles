@@ -248,7 +248,6 @@
 (global-set-key (kbd "C-c m") #'delete-duplicate-lines)
 (global-set-key (kbd "C-c c") #'org-capture)
 (global-set-key (kbd "C-c l") #'org-store-link)
-(global-set-key (kbd "C-c z") #'my-zettelhub-open-index)
 
 ;;; dired
 
