@@ -33,7 +33,10 @@
 
 (setq package-archives
       '(("gnu"   . "https://elpa.gnu.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")))
+        ("melpa" . "https://melpa.org/packages/")
+        ("melpa-stable" . "http://stable.melpa.org/packages/")
+        ("org" . "http://orgmode.org/elpa/")
+        ("ELPA" . "http://tromey.com/elpa/")))
 
 (unless package-archive-contents
   (package-refresh-contents))
@@ -86,27 +89,60 @@
   :config
   (global-corfu-mode))
 
+;; Common Lisp
+(use-package slime
+  :config
+  (setq inferior-lisp-program "sbcl")
+  (slime-setup '(slime-fancy)))
+
 ;; LSP
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook ((ruby-mode . lsp-deferred))
+  :hook ((typescript-mode . lsp-deferred)
+         (js-mode . lsp-deferred)
+         (html-mode . lsp-deferred)
+         (css-mode . lsp-deferred)
+         (web-mode . lsp-deferred)
+         (json-mode . lsp-deferred)
+         (lsp-mode . config-lsp-format-on-save))
   :config
   (setq lsp-prefer-flymake t
-	lsp-ruby-server 'solargraph))
+        lsp-enable-on-type-formatting nil))
 
-;; Ruby
-(use-package inf-ruby
-  :hook
-  (ruby-mode . inf-ruby-minor-mode))
+;; TypeScript
+(use-package typescript-mode
+  :mode "\\.ts\\'")
 
 ;; Web templates
 (use-package web-mode
-  :mode ("\\.erb\\'" . web-mode))
+  :mode (("\\.jsx\\'" . web-mode)
+         ("\\.tsx\\'" . web-mode))
+  :config
+  (setq web-mode-enable-auto-closing t
+        web-mode-enable-auto-quoting t
+        web-mode-markup-indent-offset 2
+        web-mode-code-indent-offset 2
+        web-mode-css-indent-offset 2
+        web-mode-content-types-alist
+        '(("jsx" . "\\.[jt]sx\\'"))))
+
+;; JSON
+(use-package json-mode
+  :mode "\\.json\\'")
 
 ;; Markdown
 (use-package markdown-mode
   :mode
   ("\\.md\\'" . gfm-mode))
+
+;;; 言語別設定
+
+;; HTML
+(add-hook 'html-mode-hook #'sgml-electric-tag-pair-mode)
+(setq sgml-basic-offset 2)
+
+;; CSS
+(setq css-indent-offset 2)
 
 ;;; 基本設定
 
@@ -174,11 +210,6 @@
       (save-buffers-kill-terminal)
     (message "")))
 
-(defun my-zettelhub-open-index ()
-  "Open the main Zettelhub index.org."
-  (interactive)
-  (find-file my-zettelhub-index-file))
-
 ;;; 自作関数（設定・hook・advice 用）
 
 (defun config-dired-setup ()
@@ -191,6 +222,14 @@
   (when (ignore-errors (org-capture-goto-last-stored) t)
     (kill-buffer (current-buffer)))
   (message ""))
+
+(defun config-lsp-format-on-save ()
+  "Enable LSP-based formatting before saving the current buffer."
+  (add-hook 'before-save-hook
+            (lambda ()
+              (when (bound-and-true-p lsp-mode)
+                (lsp-format-buffer)))
+            nil t))
 
 ;;; キーバインド
 
@@ -248,15 +287,5 @@
          nil :unnarrowed 1 :kill-buffer 1)))
 
 (advice-add 'org-capture-finalize :around #'config-org-capture-finalize)
-
-;;; zettelhub
-
-(defvar my-zettelhub-directory
-  (expand-file-name "zettelhub" org-directory)
-  "Directory for Zettelhub notes.")
-
-(defvar my-zettelhub-index-file
-  (expand-file-name "index.org" my-zettelhub-directory)
-  "Main index file for Zettelhub.")
 
 ;;; init.el ends here
