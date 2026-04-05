@@ -263,7 +263,8 @@
       org-startup-folded 'showall
       org-startup-with-inline-images t
       org-startup-truncated nil
-      org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)")))
+      org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)"))
+      org-tags-column 0)
 
 (with-eval-after-load 'org
   (setcdr (assoc 'file org-link-frame-setup) 'find-file))
@@ -271,10 +272,19 @@
 (setq org-capture-templates
       `(("n" "Note" entry
          (file ,(expand-file-name "notes.org" org-directory))
-         "* %?" :empty-lines 1 :kill-buffer 1)
+         "* %^{Title} :tech:%^g:\n:PROPERTIES:\n:CREATED: %U\n:END:\n\n{事象}%?\n\n** Context\n\n{背景}\n\n** Solution\n\n{手順}\n\n#+begin_src {LANG}\n\n#+end_src\n\n** Comments\n\n{補足}\n\n"
+         :empty-lines 1 :kill-buffer 1)
 
         ("N" "Check Notes" plain
          (file ,(expand-file-name "notes.org" org-directory))
+         nil :unnarrowed 1 :kill-buffer 1)
+
+        ("m" "Memo" entry
+         (file ,(expand-file-name "memos.org" org-directory))
+         "* %?" :empty-lines 1 :kill-buffer 1)
+
+        ("M" "Check Memos" plain
+         (file ,(expand-file-name "memos.org" org-directory))
          nil :unnarrowed 1 :kill-buffer 1)
 
         ("t" "Task" entry
