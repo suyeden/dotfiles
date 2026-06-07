@@ -2,6 +2,7 @@
 
 ## Requirements
 
+- git
 - Node.js
 - npm
 - SBCL (for Common Lisp / SLIME)

@@ -27,25 +27,29 @@
 
 ;;; Code:
 
-;;; package
+;;; straight
 
-(require 'package)
-
-(setq package-archives
-      '(("gnu"   . "https://elpa.gnu.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")
-        ("melpa-stable" . "http://stable.melpa.org/packages/")
-        ("org" . "http://orgmode.org/elpa/")
-        ("ELPA" . "http://tromey.com/elpa/")))
-
-(unless package-archive-contents
-  (package-refresh-contents))
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        user-emacs-directory))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
 ;;; use-package
 
-(require 'use-package)
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
 
-(setq use-package-always-ensure t)
+(require 'use-package)
 
 ;;; 外部パッケージ
 
@@ -85,7 +89,8 @@
 (use-package corfu
   :init
   (setq corfu-auto t
-        corfu-cycle t)
+        corfu-cycle t
+        corfu-preselect 'prompt)
   :config
   (global-corfu-mode))
 
@@ -132,8 +137,7 @@
 
 ;; Markdown
 (use-package markdown-mode
-  :mode
-  ("\\.md\\'" . gfm-mode))
+  :mode ("\\.md\\'" . gfm-mode))
 
 ;;; 言語別設定
 
@@ -158,6 +162,7 @@
       vc-follow-symlinks t
       make-backup-files nil
       delete-auto-save-files t
+      global-auto-revert-non-file-buffers t
       tab-width 2
       scroll-conservatively 35
       scroll-step 1
@@ -165,6 +170,8 @@
       eol-mnemonic-dos "(CRLF)"
       eol-mnemonic-mac "(CR)"
       eol-mnemonic-unix "(LF)")
+
+(global-auto-revert-mode 1)
 
 (setq-default indent-tabs-mode nil)
 
@@ -203,6 +210,19 @@
 
 ;;; 自作関数（コマンド）
 
+(defun my-smart-move-beginning-of-line ()
+  "Move point to first non-whitespace character or beginning of line."
+  (interactive)
+  (let ((orig-point (point)))
+    (back-to-indentation)
+    (when (= orig-point (point))
+      (move-beginning-of-line 1))))
+
+(defun my-other-window-backward ()
+  "Move to the previous window."
+  (interactive)
+  (other-window -1))
+
 (defun my-kill-emacs ()
   "Confirm before exiting Emacs."
   (interactive)
@@ -225,15 +245,13 @@
 
 (defun config-lsp-format-on-save ()
   "Enable LSP-based formatting before saving the current buffer."
-  (add-hook 'before-save-hook
-            (lambda ()
-              (when (bound-and-true-p lsp-mode)
-                (lsp-format-buffer)))
-            nil t))
+  (add-hook 'before-save-hook #'lsp-format-buffer nil t))
 
 ;;; キーバインド
 
+(global-set-key (kbd "C-a") #'my-smart-move-beginning-of-line)
 (global-set-key (kbd "C-t") #'other-window)
+(global-set-key (kbd "C-S-t") #'my-other-window-backward)
 (global-set-key (kbd "C-z") #'undo-tree-undo)
 (global-set-key (kbd "C-S-z") #'undo-tree-redo)
 (global-set-key (kbd "C-_") #'undo-tree-undo)
