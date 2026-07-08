@@ -94,12 +94,6 @@
   :config
   (global-corfu-mode))
 
-;; Common Lisp
-(use-package slime
-  :config
-  (setq inferior-lisp-program "sbcl")
-  (slime-setup '(slime-fancy)))
-
 ;; LSP
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
