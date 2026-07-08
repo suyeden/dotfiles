@@ -103,7 +103,8 @@
 ;; LSP
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook ((typescript-mode . lsp-deferred)
+  :hook ((go-mode . lsp-deferred)
+         (typescript-mode . lsp-deferred)
          (js-mode . lsp-deferred)
          (html-mode . lsp-deferred)
          (css-mode . lsp-deferred)
@@ -113,6 +114,10 @@
   :config
   (setq lsp-prefer-flymake t
         lsp-enable-on-type-formatting nil))
+
+;; Go
+(use-package go-mode
+  :mode "\\.go\\'")
 
 ;; TypeScript
 (use-package typescript-mode
@@ -176,6 +181,10 @@
 (setq-default indent-tabs-mode nil)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
+
+;; 矩形選択
+(cua-mode 1)
+(setq cua-enable-cua-keys nil)
 
 ;; カーソル移動・履歴
 (setq set-mark-command-repeat-pop t
