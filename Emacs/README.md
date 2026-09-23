@@ -15,7 +15,7 @@
 
 ``` bash
 # HTML / CSS / JSON
-npm i -g vscode-langservers-extracted
+npm i -g --allow-scripts=core-js vscode-langservers-extracted
 
 # TypeScript / JavaScript
 npm i -g typescript-language-server

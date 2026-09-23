@@ -185,7 +185,6 @@
       make-backup-files nil
       delete-auto-save-files t
       global-auto-revert-non-file-buffers t
-      delete-selection-save-to-register nil
       tab-width 2
       scroll-conservatively 35
       scroll-step 1
@@ -226,7 +225,9 @@
 ;;; UI 設定
 
 (set-face-attribute 'delete-selection-replacement nil
-                    :inherit 'highlight)
+                    :foreground 'unspecified
+                    :background 'unspecified
+                    :inherit nil)
 
 (delete-selection-mode 1)
 (show-paren-mode 1)
