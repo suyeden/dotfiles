@@ -1,10 +1,10 @@
-;;; init.el --- suyeden's configuration file for Emacs -*- Emacs-Lisp -*-
+;;; init.el --- suyeden's configuration file for Emacs -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2019-2026 suyeden
 
 ;; Author: suyeden
 ;; Keywords: internal, local
-;; Package-Requires: ((emacs "30.2"))
+;; Package-Requires: ((emacs "31.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -46,12 +46,23 @@
 
 ;;; use-package
 
-(straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
 (require 'use-package)
 
+(when (eq system-type 'windows-nt)
+  (setq w32-pipe-read-delay 0)
+  (setq w32-pipe-buffer-size (* 1024 1024)))
+
+(setq read-process-output-max (* 1024 1024))
+(setq gc-cons-threshold (* 100 1024 1024))
+
 ;;; 外部パッケージ
+
+;; テーマ
+(use-package doom-themes
+  :config
+  (load-theme 'doom-dracula t))
 
 ;; undo-tree
 (use-package undo-tree
@@ -65,11 +76,6 @@
   :config
   (exec-path-from-shell-initialize))
 
-;; which-key
-(use-package which-key
-  :config
-  (which-key-mode 1))
-
 ;; magit
 (use-package magit)
 
@@ -78,14 +84,7 @@
   :config
   (global-git-gutter-mode 1))
 
-;; projectile
-(use-package projectile
-  :config
-  (projectile-mode 1)
-  :bind-keymap
-  ("C-c p" . projectile-command-map))
-
-;; complement
+;; completion
 (use-package corfu
   :init
   (setq corfu-auto t
@@ -94,58 +93,82 @@
   :config
   (global-corfu-mode))
 
+(use-package corfu-terminal
+  :unless (display-graphic-p)
+  :after corfu
+  :config
+  (corfu-terminal-mode 1))
+
 ;; LSP
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook ((go-mode . lsp-deferred)
-         (typescript-mode . lsp-deferred)
-         (js-mode . lsp-deferred)
-         (html-mode . lsp-deferred)
-         (css-mode . lsp-deferred)
-         (web-mode . lsp-deferred)
-         (json-mode . lsp-deferred)
-         (lsp-mode . config-lsp-format-on-save))
+(use-package eglot
+  :hook ((typescript-ts-mode . eglot-ensure)
+         (tsx-ts-mode . eglot-ensure)
+         (js-ts-mode . eglot-ensure)
+         (html-ts-mode . eglot-ensure)
+         (css-ts-mode . eglot-ensure)
+         (json-ts-mode . eglot-ensure))
   :config
-  (setq lsp-prefer-flymake t
-        lsp-enable-on-type-formatting nil))
+  (setq eglot-ignored-server-capabilities
+        '(:semanticTokensProvider
+          :documentHighlightProvider)))
 
-;; Go
-(use-package go-mode
-  :mode "\\.go\\'")
-
-;; TypeScript
-(use-package typescript-mode
-  :mode "\\.ts\\'")
-
-;; Web templates
+;; Vue.js
 (use-package web-mode
-  :mode (("\\.jsx\\'" . web-mode)
-         ("\\.tsx\\'" . web-mode))
+  :mode ("\\.vue\\'" . web-mode)
+  :hook (web-mode . eglot-ensure)
   :config
-  (setq web-mode-enable-auto-closing t
-        web-mode-enable-auto-quoting t
-        web-mode-markup-indent-offset 2
-        web-mode-code-indent-offset 2
-        web-mode-css-indent-offset 2
-        web-mode-content-types-alist
-        '(("jsx" . "\\.[jt]sx\\'"))))
-
-;; JSON
-(use-package json-mode
-  :mode "\\.json\\'")
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 '(web-mode . config-vue-ls-contact))))
 
 ;; Markdown
 (use-package markdown-mode
   :mode ("\\.md\\'" . gfm-mode))
 
+;; SQL
+(use-package sql-indent
+  :hook (sql-mode . sqlind-minor-mode))
+
+;; Apheleia
+(use-package apheleia
+  :config
+  (apheleia-global-mode +1)
+  (setf (alist-get 'web-mode apheleia-mode-alist) 'prettier
+        (alist-get 'sql-mode apheleia-mode-alist) 'sqlformat))
+
+;; HTTP REST client
+(use-package restclient
+  :mode ("\\.http\\'" . restclient-mode))
+
 ;;; 言語別設定
 
+;; Tree-sitter
+(setq treesit-language-source-alist
+      '((typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+        (html "https://github.com/tree-sitter/tree-sitter-html")
+        (css "https://github.com/tree-sitter/tree-sitter-css")
+        (json "https://github.com/tree-sitter/tree-sitter-json"))
+      treesit-auto-install-grammar 'always
+      treesit-font-lock-level 4)
+
+;; TypeScript / JavaScript
+(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-ts-mode))
+
 ;; HTML
-(add-hook 'html-mode-hook #'sgml-electric-tag-pair-mode)
+(add-to-list 'auto-mode-alist '("\\.html\\'" . html-ts-mode))
 (setq sgml-basic-offset 2)
 
 ;; CSS
+(add-to-list 'auto-mode-alist '("\\.css\\'" . css-ts-mode))
 (setq css-indent-offset 2)
+
+;; JSON
+(add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
 
 ;;; 基本設定
 
@@ -162,6 +185,7 @@
       make-backup-files nil
       delete-auto-save-files t
       global-auto-revert-non-file-buffers t
+      delete-selection-save-to-register nil
       tab-width 2
       scroll-conservatively 35
       scroll-step 1
@@ -170,11 +194,25 @@
       eol-mnemonic-mac "(CR)"
       eol-mnemonic-unix "(LF)")
 
+(normal-erase-is-backspace-mode 1)
+(which-key-mode 1)
 (global-auto-revert-mode 1)
 
 (setq-default indent-tabs-mode nil)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
+
+;; repeat-mode
+(repeat-mode 1)
+
+(defvar config-undo-repeat-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "u") #'undo-tree-undo)
+    (define-key map (kbd "r") #'undo-tree-redo)
+    map))
+
+(put 'undo-tree-undo 'repeat-map 'config-undo-repeat-map)
+(put 'undo-tree-redo 'repeat-map 'config-undo-repeat-map)
 
 ;; 矩形選択
 (cua-mode 1)
@@ -186,6 +224,9 @@
       global-mark-ring-max 64)
 
 ;;; UI 設定
+
+(set-face-attribute 'delete-selection-replacement nil
+                    :inherit 'highlight)
 
 (delete-selection-mode 1)
 (show-paren-mode 1)
@@ -207,10 +248,6 @@
                        "Consolas 11"
                      "Cica 12")))
 
-;;; テーマ
-
-(load-theme 'deeper-blue t)
-
 ;;; 自作関数（コマンド）
 
 (defun my-smart-move-beginning-of-line ()
@@ -221,11 +258,6 @@
     (when (= orig-point (point))
       (move-beginning-of-line 1))))
 
-(defun my-other-window-backward ()
-  "Move to the previous window."
-  (interactive)
-  (other-window -1))
-
 (defun my-kill-emacs ()
   "Confirm before exiting Emacs."
   (interactive)
@@ -235,10 +267,6 @@
 
 ;;; 自作関数（設定・hook・advice 用）
 
-(defun config-dired-setup ()
-  "Custom keybindings for `dired-mode'."
-  (define-key dired-mode-map (kbd "C-t") #'other-window))
-
 (defun config-org-capture-finalize (old-func &rest args)
   "After org-capture-finalize, kill the buffer associated with the last captured entry."
   (apply old-func args)
@@ -246,35 +274,37 @@
     (kill-buffer (current-buffer)))
   (message ""))
 
-(defun config-lsp-format-on-save ()
-  "Enable LSP-based formatting before saving the current buffer."
-  (add-hook 'before-save-hook #'lsp-format-buffer nil t))
+(defun config-vue-ls-contact (_interactive)
+  "Build the contact for `vue-language-server' with an absolute tsdk path."
+  (let* ((root (if (project-current)
+                   (project-root (project-current))
+                 default-directory))
+         (tsdk (expand-file-name "node_modules/typescript/lib" root)))
+    (list "vue-language-server" "--stdio"
+          :initializationOptions
+          (list :typescript (list :tsdk tsdk)))))
 
 ;;; キーバインド
 
 (global-set-key (kbd "C-a") #'my-smart-move-beginning-of-line)
-(global-set-key (kbd "C-t") #'other-window)
-(global-set-key (kbd "C-S-t") #'my-other-window-backward)
-(global-set-key (kbd "C-z") #'undo-tree-undo)
-(global-set-key (kbd "C-S-z") #'undo-tree-redo)
-(global-set-key (kbd "C-_") #'undo-tree-undo)
-(global-set-key (kbd "M-_") #'undo-tree-redo)
-(global-set-key (kbd "M-n") #'scroll-up-line)
-(global-set-key (kbd "M-p") #'scroll-down-line)
-(global-set-key (kbd "M-]") #'forward-list)
-(global-set-key (kbd "M-[") #'backward-list)
+(global-set-key (kbd "M-n") #'forward-list)
+(global-set-key (kbd "M-p") #'backward-list)
 (global-set-key (kbd "C-x g") #'magit-status)
+(global-set-key (kbd "C-x <down>") #'bury-buffer)
 (global-set-key (kbd "C-x C-<down>") #'bury-buffer)
 (global-set-key (kbd "C-x C-c") #'my-kill-emacs)
+(global-set-key (kbd "C-c u") #'undo-tree-undo)
+(global-set-key (kbd "C-c r") #'undo-tree-redo)
 (global-set-key (kbd "C-c m") #'delete-duplicate-lines)
 (global-set-key (kbd "C-c c") #'org-capture)
 (global-set-key (kbd "C-c l") #'org-store-link)
 
 ;;; dired
 
-(setq dired-kill-when-opening-new-dired-buffer t)
-
-(add-hook 'dired-mode-hook #'config-dired-setup)
+(setq dired-kill-when-opening-new-dired-buffer t
+      dired-dwim-target t
+      dired-recursive-copies 'always
+      dired-isearch-filenames t)
 
 ;;; org-mode
 
@@ -285,7 +315,8 @@
       org-startup-with-inline-images t
       org-startup-truncated nil
       org-todo-keywords '((sequence "TODO(t)" "|" "DONE(d)"))
-      org-tags-column 0)
+      org-tags-column 0
+      org-support-shift-select t)
 
 (with-eval-after-load 'org
   (setcdr (assoc 'file org-link-frame-setup) 'find-file))
